@@ -6,11 +6,16 @@
 
     <title>WorkFlow Pro — Task Management</title>
 
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
 
-    <link rel="stylesheet" href="style.css">
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
@@ -23,78 +28,132 @@
 
         <div class="auth-logo">
             <div class="logo-icon">✓</div>
-            <h1>WorkFlow <span>Pro</span></h1>
+
+            <h1>
+                WorkFlow <span>Pro</span>
+            </h1>
         </div>
 
-        <p class="auth-subtitle">Organize your work. Own your day.</p>
+        <p class="auth-subtitle">
+            Organize your work. Own your day.
+        </p>
 
         <div class="auth-tabs">
-            <button class="auth-tab active" id="signInTab">Sign In</button>
-            <button class="auth-tab" id="signUpTab">Sign Up</button>
+            <button class="auth-tab active" id="signInTab">
+                Sign In
+            </button>
+
+            <button class="auth-tab" id="signUpTab">
+                Sign Up
+            </button>
         </div>
 
-        <!-- Sign In -->
+
+        <!-- ================= SIGN IN ================= -->
+
         <form id="signInForm" class="auth-form">
 
             <div class="form-group">
-                <label for="signInEmail">Email</label>
+
+                <label for="signInEmail">
+                    Email
+                </label>
+
                 <input
                     type="email"
                     id="signInEmail"
                     placeholder="you@example.com"
                     required
                 >
+
             </div>
 
+
             <div class="form-group">
-                <label for="signInPassword">Password</label>
+
+                <label for="signInPassword">
+                    Password
+                </label>
 
                 <div class="password-wrapper">
+
                     <input
                         type="password"
                         id="signInPassword"
                         placeholder="Enter your password"
                         required
                     >
-                    <button type="button" class="password-toggle" data-target="signInPassword">
+
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        data-target="signInPassword"
+                    >
                         👁
                     </button>
+
                 </div>
+
             </div>
 
-            <button type="submit" class="primary-btn auth-submit">
+
+            <button
+                type="submit"
+                class="primary-btn auth-submit"
+            >
                 Sign In
             </button>
 
         </form>
 
-        <!-- Sign Up -->
-        <form id="signUpForm" class="auth-form hidden">
+
+        <!-- ================= SIGN UP ================= -->
+
+        <form
+            id="signUpForm"
+            class="auth-form hidden"
+        >
 
             <div class="form-group">
-                <label for="signUpName">Full Name</label>
+
+                <label for="signUpName">
+                    Full Name
+                </label>
+
                 <input
                     type="text"
                     id="signUpName"
                     placeholder="Your name"
                     required
                 >
+
             </div>
 
+
             <div class="form-group">
-                <label for="signUpEmail">Email</label>
+
+                <label for="signUpEmail">
+                    Email
+                </label>
+
                 <input
                     type="email"
                     id="signUpEmail"
                     placeholder="you@example.com"
                     required
                 >
+
             </div>
 
+
             <div class="form-group">
-                <label for="signUpPassword">Password</label>
+
+                <label for="signUpPassword">
+                    Password
+                </label>
 
                 <div class="password-wrapper">
+
                     <input
                         type="password"
                         id="signUpPassword"
@@ -103,13 +162,23 @@
                         required
                     >
 
-                    <button type="button" class="password-toggle" data-target="signUpPassword">
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        data-target="signUpPassword"
+                    >
                         👁
                     </button>
+
                 </div>
+
             </div>
 
-            <button type="submit" class="primary-btn auth-submit">
+
+            <button
+                type="submit"
+                class="primary-btn auth-submit"
+            >
                 Create Account
             </button>
 
@@ -122,58 +191,102 @@
 
 <!-- ================= MAIN APP ================= -->
 
-<div class="app hidden" id="app">
+<div
+    class="app hidden"
+    id="app"
+>
 
-    <!-- SIDEBAR -->
+    <!-- ================= SIDEBAR ================= -->
 
-    <aside class="sidebar" id="sidebar">
+    <aside
+        class="sidebar"
+        id="sidebar"
+    >
 
         <div class="sidebar-top">
 
             <div class="brand">
-                <div class="logo-icon">✓</div>
+
+                <div class="logo-icon">
+                    ✓
+                </div>
 
                 <div>
-                    <h2>WorkFlow <span>Pro</span></h2>
-                    <small>Task Management</small>
+
+                    <h2>
+                        WorkFlow <span>Pro</span>
+                    </h2>
+
+                    <small>
+                        Task Management
+                    </small>
+
                 </div>
+
             </div>
 
-            <button class="close-sidebar" id="closeSidebar">
+
+            <button
+                class="close-sidebar"
+                id="closeSidebar"
+            >
                 ×
             </button>
 
         </div>
 
 
-        <!-- USER -->
+        <!-- ================= USER ================= -->
 
         <div class="user-card">
 
-            <div class="avatar" id="userAvatar">
+            <div
+                class="avatar"
+                id="userAvatar"
+            >
                 U
             </div>
 
             <div class="user-info">
-                <strong id="userName">User</strong>
-                <span id="userEmail">user@example.com</span>
+
+                <strong id="userName">
+                    User
+                </strong>
+
+                <span id="userEmail">
+                    user@example.com
+                </span>
+
             </div>
 
         </div>
 
 
-        <!-- STREAK -->
+        <!-- ================= STREAK ================= -->
 
         <div class="streak-card">
 
             <div class="streak-header">
+
                 <span>🔥</span>
-                <strong><span id="streakCount">0</span> day streak</strong>
+
+                <strong>
+                    <span id="streakCount">0</span>
+                    day streak
+                </strong>
+
             </div>
 
+
             <div class="streak-bar">
-                <div class="streak-progress" id="streakProgress"></div>
+
+                <div
+                    class="streak-progress"
+                    id="streakProgress"
+                ></div>
+
             </div>
+
 
             <small id="streakMessage">
                 Complete a task today to start your streak!
@@ -182,64 +295,167 @@
         </div>
 
 
-        <!-- NAVIGATION -->
+        <!-- ================= NAVIGATION ================= -->
 
         <nav class="sidebar-nav">
 
-            <p class="nav-label">TASKS</p>
+            <p class="nav-label">
+                TASKS
+            </p>
 
-            <button class="nav-item active" data-category="all">
+
+            <button
+                class="nav-item active"
+                data-category="all"
+            >
+
                 <span>📋</span>
-                <span>All Tasks</span>
-                <span class="nav-count" id="allCount">0</span>
+
+                <span>
+                    All Tasks
+                </span>
+
+                <span
+                    class="nav-count"
+                    id="allCount"
+                >
+                    0
+                </span>
+
             </button>
 
-            <button class="nav-item" data-category="personal">
+
+            <button
+                class="nav-item"
+                data-category="personal"
+            >
+
                 <span>👤</span>
-                <span>Personal</span>
-                <span class="nav-count" id="personalCount">0</span>
+
+                <span>
+                    Personal
+                </span>
+
+                <span
+                    class="nav-count"
+                    id="personalCount"
+                >
+                    0
+                </span>
+
             </button>
 
-            <button class="nav-item" data-category="work">
+
+            <button
+                class="nav-item"
+                data-category="work"
+            >
+
                 <span>💼</span>
-                <span>Work</span>
-                <span class="nav-count" id="workCount">0</span>
+
+                <span>
+                    Work
+                </span>
+
+                <span
+                    class="nav-count"
+                    id="workCount"
+                >
+                    0
+                </span>
+
             </button>
 
-            <button class="nav-item" data-category="study">
+
+            <button
+                class="nav-item"
+                data-category="study"
+            >
+
                 <span>📚</span>
-                <span>Study</span>
-                <span class="nav-count" id="studyCount">0</span>
+
+                <span>
+                    Study
+                </span>
+
+                <span
+                    class="nav-count"
+                    id="studyCount"
+                >
+                    0
+                </span>
+
             </button>
 
-            <button class="nav-item" data-category="health">
+
+            <button
+                class="nav-item"
+                data-category="health"
+            >
+
                 <span>❤️</span>
-                <span>Health</span>
-                <span class="nav-count" id="healthCount">0</span>
+
+                <span>
+                    Health
+                </span>
+
+                <span
+                    class="nav-count"
+                    id="healthCount"
+                >
+                    0
+                </span>
+
             </button>
 
-            <button class="nav-item" data-category="others">
+
+            <button
+                class="nav-item"
+                data-category="others"
+            >
+
                 <span>📌</span>
-                <span>Others</span>
-                <span class="nav-count" id="othersCount">0</span>
+
+                <span>
+                    Others
+                </span>
+
+                <span
+                    class="nav-count"
+                    id="othersCount"
+                >
+                    0
+                </span>
+
             </button>
 
         </nav>
 
 
-        <!-- ACHIEVEMENTS -->
+        <!-- ================= ACHIEVEMENTS ================= -->
 
         <div class="achievements-section">
 
-            <p class="nav-label">ACHIEVEMENTS</p>
+            <p class="nav-label">
+                ACHIEVEMENTS
+            </p>
 
             <div class="achievement-card">
 
-                <div class="achievement-icon">🏆</div>
+                <div class="achievement-icon">
+                    🏆
+                </div>
 
                 <div>
-                    <strong id="achievementCount">0</strong>
-                    <span>achievements</span>
+
+                    <strong id="achievementCount">
+                        0
+                    </strong>
+
+                    <span>
+                        achievements
+                    </span>
+
                 </div>
 
             </div>
@@ -247,36 +463,73 @@
         </div>
 
 
-        <!-- PROGRESS -->
+        <!-- ================= PROGRESS ================= -->
 
         <div class="sidebar-progress">
 
             <div class="progress-header">
-                <span>Today's Progress</span>
-                <strong id="progressPercent">0%</strong>
+
+                <span>
+                    Today's Progress
+                </span>
+
+                <strong id="progressPercent">
+                    0%
+                </strong>
+
             </div>
+
 
             <div class="progress-track">
-                <div class="progress-fill" id="progressFill"></div>
+
+                <div
+                    class="progress-fill"
+                    id="progressFill"
+                ></div>
+
             </div>
 
-            <small id="progressText">0 of 0 tasks completed</small>
+
+            <small id="progressText">
+                0 of 0 tasks completed
+            </small>
 
         </div>
 
 
-        <!-- SIDEBAR FOOTER -->
+        <!-- ================= SIDEBAR FOOTER ================= -->
 
         <div class="sidebar-footer">
 
-            <button class="sidebar-action" id="themeToggle">
-                <span id="themeIcon">🌙</span>
-                <span>Theme</span>
+            <button
+                class="sidebar-action"
+                id="themeToggle"
+            >
+
+                <span id="themeIcon">
+                    🌙
+                </span>
+
+                <span>
+                    Theme
+                </span>
+
             </button>
 
-            <button class="sidebar-action signout-btn" id="signOutBtn">
-                <span>🚪</span>
-                <span>Sign Out</span>
+
+            <button
+                class="sidebar-action signout-btn"
+                id="signOutBtn"
+            >
+
+                <span>
+                    🚪
+                </span>
+
+                <span>
+                    Sign Out
+                </span>
+
             </button>
 
         </div>
@@ -284,17 +537,22 @@
     </aside>
 
 
-    <!-- MAIN -->
+    <!-- ================= MAIN CONTENT ================= -->
 
     <main class="main-content">
 
-        <!-- HEADER -->
+
+        <!-- ================= HEADER ================= -->
 
         <header class="top-header">
 
-            <button class="mobile-menu" id="mobileMenu">
+            <button
+                class="mobile-menu"
+                id="mobileMenu"
+            >
                 ☰
             </button>
+
 
             <div class="welcome">
 
@@ -308,11 +566,17 @@
 
             </div>
 
+
             <div class="header-actions">
+
+
+                <!-- SEARCH -->
 
                 <div class="search-box">
 
-                    <span>🔍</span>
+                    <span>
+                        🔍
+                    </span>
 
                     <input
                         type="search"
@@ -322,9 +586,20 @@
 
                 </div>
 
-                <button class="primary-btn new-task-btn" id="newTaskBtn">
-                    <span>+</span>
+
+                <!-- NEW TASK -->
+
+                <button
+                    class="primary-btn new-task-btn"
+                    id="newTaskBtn"
+                >
+
+                    <span>
+                        +
+                    </span>
+
                     New Task
+
                 </button>
 
             </div>
@@ -332,84 +607,198 @@
         </header>
 
 
-        <!-- QUICK STATS -->
+        <!-- ================= QUICK STATS ================= -->
 
         <section class="stats-grid">
 
+
+            <!-- TOTAL -->
+
             <div class="stat-card">
-                <div class="stat-icon total">📋</div>
+
+                <div class="stat-icon total">
+                    📋
+                </div>
 
                 <div>
-                    <span>Total Tasks</span>
-                    <strong id="totalTasks">0</strong>
+
+                    <span>
+                        Total Tasks
+                    </span>
+
+                    <strong id="totalTasks">
+                        0
+                    </strong>
+
                 </div>
+
             </div>
 
 
+            <!-- COMPLETED -->
+
             <div class="stat-card">
-                <div class="stat-icon completed">✓</div>
+
+                <div class="stat-icon completed">
+                    ✓
+                </div>
 
                 <div>
-                    <span>Completed</span>
-                    <strong id="completedTasks">0</strong>
+
+                    <span>
+                        Completed
+                    </span>
+
+                    <strong id="completedTasks">
+                        0
+                    </strong>
+
                 </div>
+
             </div>
 
 
+            <!-- PENDING -->
+
             <div class="stat-card">
-                <div class="stat-icon pending">⏳</div>
+
+                <div class="stat-icon pending">
+                    ⏳
+                </div>
 
                 <div>
-                    <span>Pending</span>
-                    <strong id="pendingTasks">0</strong>
+
+                    <span>
+                        Pending
+                    </span>
+
+                    <strong id="pendingTasks">
+                        0
+                    </strong>
+
                 </div>
+
             </div>
 
 
+            <!-- OVERDUE -->
+
             <div class="stat-card">
-                <div class="stat-icon overdue">⚠</div>
+
+                <div class="stat-icon overdue">
+                    ⚠
+                </div>
 
                 <div>
-                    <span>Overdue</span>
-                    <strong id="overdueTasks">0</strong>
+
+                    <span>
+                        Overdue
+                    </span>
+
+                    <strong id="overdueTasks">
+                        0
+                    </strong>
+
                 </div>
+
             </div>
 
         </section>
 
 
-        <!-- TASK AREA -->
+        <!-- ================= TASK AREA ================= -->
 
         <section class="task-section">
+
+
+            <!-- SECTION HEADER -->
 
             <div class="section-header">
 
                 <div>
-                    <h2 id="sectionTitle">All Tasks</h2>
-                    <p id="taskSummary">Your tasks at a glance</p>
+
+                    <h2 id="sectionTitle">
+                        All Tasks
+                    </h2>
+
+                    <p id="taskSummary">
+                        Your tasks at a glance
+                    </p>
+
                 </div>
+
+
+                <!-- TASK CONTROLS -->
 
                 <div class="task-controls">
 
+
+                    <!-- PRIORITY -->
+
                     <select id="priorityFilter">
-                        <option value="all">All Priorities</option>
-                        <option value="high">High Priority</option>
-                        <option value="medium">Medium Priority</option>
-                        <option value="low">Low Priority</option>
+
+                        <option value="all">
+                            All Priorities
+                        </option>
+
+                        <option value="high">
+                            High Priority
+                        </option>
+
+                        <option value="medium">
+                            Medium Priority
+                        </option>
+
+                        <option value="low">
+                            Low Priority
+                        </option>
+
                     </select>
+
+
+                    <!-- STATUS -->
 
                     <select id="statusFilter">
-                        <option value="all">All Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="completed">Completed</option>
+
+                        <option value="all">
+                            All Status
+                        </option>
+
+                        <option value="pending">
+                            Pending
+                        </option>
+
+                        <option value="completed">
+                            Completed
+                        </option>
+
                     </select>
 
+
+                    <!-- SORT -->
+
                     <select id="sortSelect">
-                        <option value="created-desc">Newest First</option>
-                        <option value="created-asc">Oldest First</option>
-                        <option value="due-asc">Due Date</option>
-                        <option value="priority">Priority</option>
-                        <option value="title">Title</option>
+
+                        <option value="created-desc">
+                            Newest First
+                        </option>
+
+                        <option value="created-asc">
+                            Oldest First
+                        </option>
+
+                        <option value="due-asc">
+                            Due Date
+                        </option>
+
+                        <option value="priority">
+                            Priority
+                        </option>
+
+                        <option value="title">
+                            Title
+                        </option>
+
                     </select>
 
                 </div>
@@ -417,22 +806,39 @@
             </div>
 
 
-            <div class="task-list" id="taskList">
-                <!-- Tasks inserted here -->
+            <!-- ================= TASK LIST ================= -->
+
+            <div
+                class="task-list"
+                id="taskList"
+            >
+                <!-- Tasks inserted by JavaScript -->
             </div>
 
 
-            <div class="empty-state hidden" id="emptyState">
+            <!-- ================= EMPTY STATE ================= -->
 
-                <div class="empty-icon">📝</div>
+            <div
+                class="empty-state hidden"
+                id="emptyState"
+            >
 
-                <h3 id="emptyTitle">No tasks found</h3>
+                <div class="empty-icon">
+                    📝
+                </div>
+
+                <h3 id="emptyTitle">
+                    No tasks found
+                </h3>
 
                 <p id="emptyMessage">
                     Create your first task to get started.
                 </p>
 
-                <button class="primary-btn" id="emptyAddBtn">
+                <button
+                    class="primary-btn"
+                    id="emptyAddBtn"
+                >
                     + Create Task
                 </button>
 
@@ -447,28 +853,55 @@
 
 <!-- ================= TASK MODAL ================= -->
 
-<div class="modal-overlay hidden" id="taskModal">
+<div
+    class="modal-overlay hidden"
+    id="taskModal"
+>
 
     <div class="modal">
+
+
+        <!-- MODAL HEADER -->
 
         <div class="modal-header">
 
             <div>
-                <h2 id="modalTitle">Create New Task</h2>
-                <p>Add details and stay organized.</p>
+
+                <h2 id="modalTitle">
+                    Create New Task
+                </h2>
+
+                <p>
+                    Add details and stay organized.
+                </p>
+
             </div>
 
-            <button class="modal-close" id="closeTaskModal">
+
+            <button
+                class="modal-close"
+                id="closeTaskModal"
+            >
                 ×
             </button>
 
         </div>
 
 
+        <!-- TASK FORM -->
+
         <form id="taskForm">
 
-            <input type="hidden" id="taskId">
 
+            <!-- Hidden ID for editing -->
+
+            <input
+                type="hidden"
+                id="taskId"
+            >
+
+
+            <!-- TASK TITLE -->
 
             <div class="form-group">
 
@@ -486,6 +919,8 @@
             </div>
 
 
+            <!-- NOTES -->
+
             <div class="form-group">
 
                 <label for="taskNotes">
@@ -501,7 +936,10 @@
             </div>
 
 
+            <!-- DATE + TIME -->
+
             <div class="form-row">
+
 
                 <div class="form-group">
 
@@ -533,7 +971,10 @@
             </div>
 
 
+            <!-- CATEGORY + PRIORITY -->
+
             <div class="form-row">
+
 
                 <div class="form-group">
 
@@ -580,7 +1021,10 @@
                             Low
                         </option>
 
-                        <option value="medium" selected>
+                        <option
+                            value="medium"
+                            selected
+                        >
                             Medium
                         </option>
 
@@ -595,9 +1039,11 @@
             </div>
 
 
+            <!-- REMINDER -->
+
             <div class="form-group">
 
-                <label>
+                <label for="taskReminder">
                     Reminder
                 </label>
 
@@ -632,6 +1078,8 @@
             </div>
 
 
+            <!-- MODAL BUTTONS -->
+
             <div class="modal-actions">
 
                 <button
@@ -660,21 +1108,28 @@
 
 <!-- ================= CONFIRM MODAL ================= -->
 
-<div class="modal-overlay hidden" id="confirmModal">
+<div
+    class="modal-overlay hidden"
+    id="confirmModal"
+>
 
     <div class="modal confirm-modal">
+
 
         <div class="confirm-icon">
             ⚠️
         </div>
 
+
         <h2 id="confirmTitle">
             Delete Task?
         </h2>
 
+
         <p id="confirmMessage">
             This action cannot be undone.
         </p>
+
 
         <div class="modal-actions">
 
@@ -701,10 +1156,14 @@
 
 <!-- ================= TOAST ================= -->
 
-<div class="toast-container" id="toastContainer"></div>
+<div
+    class="toast-container"
+    id="toastContainer"
+></div>
 
 
-<script src="script.js"></script>
+<!-- Main JavaScript -->
+<script src="./script.js"></script>
 
 </body>
 </html>
