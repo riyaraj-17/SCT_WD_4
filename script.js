@@ -1,892 +1,3452 @@
-/* =========================================================
-   WORKFLOW PRO — Complete JavaScript
-========================================================= */
-
 class WorkFlowPro {
+
     constructor() {
-        this.isAuthenticated = false;
-        this.currentUser = null;
+
         this.tasks = [];
-        this.streakData = { current: 0, best: 0, history: {} };
+
+        this.streakData = {
+            count: 0,
+            lastCompletedDate: null
+        };
+
         this.achievements = [];
-        this.currentList = 'all';
-        this.currentFilter = 'all';
-        this.currentSort = 'dueDate';
+
+        this.currentUser = null;
+
+        this.currentCategory = "all";
+        this.currentSearch = "";
+        this.priorityFilter = "all";
+        this.statusFilter = "all";
+        this.sortBy = "created-desc";
+
         this.editingTaskId = null;
-        this.isDarkMode = false;
+        this.deleteTaskId = null;
+
+        this.reminderInterval = null;
 
         this.initDOM();
         this.checkAuth();
         this.initEventListeners();
-
-        if ('Notification' in window && Notification.permission === 'default') {
-            Notification.requestPermission();
-        }
+        this.loadTheme();
     }
 
-    // =========================================================
-    // DOM INIT
-    // =========================================================
+
+    /* ================= DOM ================= */
+
     initDOM() {
-        this.authScreen = document.getElementById('authScreen');
-        this.app = document.getElementById('app');
-        this.authForm = document.getElementById('authForm');
-        this.authBtn = document.getElementById('authBtn');
-        this.authError = document.getElementById('authError');
-        this.authEmail = document.getElementById('authEmail');
-        this.authPassword = document.getElementById('authPassword');
-        this.authName = document.getElementById('authName');
-        this.nameGroup = document.getElementById('nameGroup');
-        this.authTabs = document.querySelectorAll('.auth-tab');
 
-        this.taskList = document.getElementById('taskList');
-        this.emptyState = document.getElementById('emptyState');
-        this.taskModal = document.getElementById('taskModal');
-        this.reminderModal = document.getElementById('reminderModal');
-        this.toastContainer = document.getElementById('toastContainer');
+        this.authScreen =
+            document.getElementById("authScreen");
 
-        this.addTaskBtn = document.getElementById('addTaskBtn');
-        this.cancelModal = document.getElementById('cancelModal');
-        this.closeModal = document.getElementById('closeModal');
-        this.closeReminder = document.getElementById('closeReminder');
-        this.dismissReminder = document.getElementById('dismissReminder');
-        this.signOutBtn = document.getElementById('signOutBtn');
-        this.themeToggle = document.getElementById('themeToggle');
+        this.app =
+            document.getElementById("app");
 
-        this.taskTitle = document.getElementById('taskTitle');
-        this.taskNotes = document.getElementById('taskNotes');
-        this.taskDate = document.getElementById('taskDate');
-        this.taskTime = document.getElementById('taskTime');
-        this.taskCategory = document.getElementById('taskCategory');
-        this.taskPriority = document.getElementById('taskPriority');
-        this.taskReminder = document.getElementById('taskReminder');
-        this.modalTitle = document.getElementById('modalTitle');
-        this.searchInput = document.getElementById('searchInput');
-        this.sortSelect = document.getElementById('sortSelect');
-        this.menuToggle = document.getElementById('menuToggle');
-        this.sidebar = document.getElementById('sidebar');
-        this.todayDate = document.getElementById('todayDate');
+        this.signInTab =
+            document.getElementById("signInTab");
+
+        this.signUpTab =
+            document.getElementById("signUpTab");
+
+        this.signInForm =
+            document.getElementById("signInForm");
+
+        this.signUpForm =
+            document.getElementById("signUpForm");
+
+        this.signInEmail =
+            document.getElementById("signInEmail");
+
+        this.signInPassword =
+            document.getElementById("signInPassword");
+
+        this.signUpName =
+            document.getElementById("signUpName");
+
+        this.signUpEmail =
+            document.getElementById("signUpEmail");
+
+        this.signUpPassword =
+            document.getElementById("signUpPassword");
+
+        this.userName =
+            document.getElementById("userName");
+
+        this.userEmail =
+            document.getElementById("userEmail");
+
+        this.userAvatar =
+            document.getElementById("userAvatar");
+
+        this.welcomeMessage =
+            document.getElementById("welcomeMessage");
+
+        this.currentDate =
+            document.getElementById("currentDate");
+
+        this.taskList =
+            document.getElementById("taskList");
+
+        this.emptyState =
+            document.getElementById("emptyState");
+
+        this.emptyTitle =
+            document.getElementById("emptyTitle");
+
+        this.emptyMessage =
+            document.getElementById("emptyMessage");
+
+        this.taskModal =
+            document.getElementById("taskModal");
+
+        this.confirmModal =
+            document.getElementById("confirmModal");
+
+        this.taskForm =
+            document.getElementById("taskForm");
+
+        this.taskId =
+            document.getElementById("taskId");
+
+        this.taskTitle =
+            document.getElementById("taskTitle");
+
+        this.taskNotes =
+            document.getElementById("taskNotes");
+
+        this.taskDueDate =
+            document.getElementById("taskDueDate");
+
+        this.taskDueTime =
+            document.getElementById("taskDueTime");
+
+        this.taskCategory =
+            document.getElementById("taskCategory");
+
+        this.taskPriority =
+            document.getElementById("taskPriority");
+
+        this.taskReminder =
+            document.getElementById("taskReminder");
+
+        this.modalTitle =
+            document.getElementById("modalTitle");
+
+        this.searchInput =
+            document.getElementById("searchInput");
+
+        this.priorityFilterElement =
+            document.getElementById("priorityFilter");
+
+        this.statusFilterElement =
+            document.getElementById("statusFilter");
+
+        this.sortSelect =
+            document.getElementById("sortSelect");
+
+        this.themeToggle =
+            document.getElementById("themeToggle");
+
+        this.themeIcon =
+            document.getElementById("themeIcon");
+
+        this.sidebar =
+            document.getElementById("sidebar");
+
+        this.toastContainer =
+            document.getElementById("toastContainer");
     }
 
-    // =========================================================
-    // AUTH
-    // =========================================================
-    checkAuth() {
-        const saved = localStorage.getItem('workflow_user');
-        if (saved) {
-            this.currentUser = JSON.parse(saved);
-            this.isAuthenticated = true;
-            this.showApp();
+
+    /* ================= AUTH STORAGE ================= */
+
+    getUsers() {
+
+        const savedUsers =
+            localStorage.getItem("workflowUsers");
+
+        if (!savedUsers) {
+            return [];
         }
-        this.loadThemePreference();
-        this.updateDate();
+
+        try {
+
+            const users =
+                JSON.parse(savedUsers);
+
+            return Array.isArray(users)
+                ? users
+                : [];
+
+        } catch {
+
+            return [];
+
+        }
     }
 
-    initAuthListeners() {
-        this.authTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                this.authTabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                const isSignup = tab.dataset.tab === 'signup';
-                this.nameGroup.classList.toggle('hidden', !isSignup);
-                this.authBtn.textContent = isSignup ? 'Create Account' : 'Sign In';
-                this.authError.classList.add('hidden');
+
+    saveUsers(users) {
+
+        localStorage.setItem(
+            "workflowUsers",
+            JSON.stringify(users)
+        );
+
+    }
+
+
+    normalizeEmail(email) {
+
+        return String(email || "")
+            .trim()
+            .toLowerCase();
+
+    }
+
+
+    /* ================= CURRENT USER ================= */
+
+    getCurrentUser() {
+
+        const saved =
+            localStorage.getItem("workflow_user");
+
+        if (!saved) {
+            return null;
+        }
+
+        try {
+
+            return JSON.parse(saved);
+
+        } catch {
+
+            localStorage.removeItem(
+                "workflow_user"
+            );
+
+            return null;
+
+        }
+    }
+
+
+    setCurrentUser(user) {
+
+        localStorage.setItem(
+            "workflow_user",
+            JSON.stringify(user)
+        );
+
+    }
+
+
+    /* ================= AUTH ================= */
+
+    checkAuth() {
+
+        const user =
+            this.getCurrentUser();
+
+        if (user) {
+
+            this.showApp(user);
+
+        } else {
+
+            this.showAuth();
+
+        }
+
+    }
+
+
+    showAuth() {
+
+        this.authScreen
+            .classList.remove("hidden");
+
+        this.app
+            .classList.add("hidden");
+
+        this.currentUser = null;
+
+        if (this.reminderInterval) {
+
+            clearInterval(
+                this.reminderInterval
+            );
+
+            this.reminderInterval = null;
+        }
+
+    }
+
+
+    showApp(user) {
+
+        this.authScreen
+            .classList.add("hidden");
+
+        this.app
+            .classList.remove("hidden");
+
+        this.currentUser = user;
+
+        this.userName.textContent =
+            user.name || "User";
+
+        this.userEmail.textContent =
+            user.email || "";
+
+        this.userAvatar.textContent =
+            (user.name || "U")
+                .charAt(0)
+                .toUpperCase();
+
+
+        /* Reset filters */
+
+        this.currentCategory = "all";
+        this.currentSearch = "";
+        this.priorityFilter = "all";
+        this.statusFilter = "all";
+        this.sortBy = "created-desc";
+
+
+        if (this.searchInput) {
+            this.searchInput.value = "";
+        }
+
+        if (this.priorityFilterElement) {
+            this.priorityFilterElement.value = "all";
+        }
+
+        if (this.statusFilterElement) {
+            this.statusFilterElement.value = "all";
+        }
+
+        if (this.sortSelect) {
+            this.sortSelect.value = "created-desc";
+        }
+
+
+        document
+            .querySelectorAll(".nav-item")
+            .forEach(item => {
+
+                item.classList.remove("active");
+
+                if (
+                    item.dataset.category === "all"
+                ) {
+
+                    item.classList.add("active");
+
+                }
+
             });
-        });
 
-        this.authForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleAuth();
-        });
+
+        this.updateWelcome();
+
+        /*
+            Load only this user's data.
+        */
+
+        this.loadData();
+
+        /*
+            Start reminder checking.
+        */
+
+        this.startReminderChecker();
+
     }
 
-    handleAuth() {
-        const email = this.authEmail.value.trim();
-        const password = this.authPassword.value.trim();
-        const isSignup = document.querySelector('.auth-tab.active').dataset.tab === 'signup';
 
-        if (!email || !password) {
-            this.showAuthError('Please fill in all fields');
+    /* ================= EVENT LISTENERS ================= */
+
+    initEventListeners() {
+
+        /* AUTH TABS */
+
+        this.signInTab.addEventListener(
+            "click",
+            () => {
+
+                this.signInTab
+                    .classList.add("active");
+
+                this.signUpTab
+                    .classList.remove("active");
+
+                this.signInForm
+                    .classList.remove("hidden");
+
+                this.signUpForm
+                    .classList.add("hidden");
+
+            }
+        );
+
+
+        this.signUpTab.addEventListener(
+            "click",
+            () => {
+
+                this.signUpTab
+                    .classList.add("active");
+
+                this.signInTab
+                    .classList.remove("active");
+
+                this.signUpForm
+                    .classList.remove("hidden");
+
+                this.signInForm
+                    .classList.add("hidden");
+
+            }
+        );
+
+
+        /* SIGN UP */
+
+        this.signUpForm.addEventListener(
+            "submit",
+            event => {
+
+                event.preventDefault();
+
+                const name =
+                    this.signUpName.value.trim();
+
+                const email =
+                    this.normalizeEmail(
+                        this.signUpEmail.value
+                    );
+
+                const password =
+                    this.signUpPassword.value;
+
+
+                if (!name) {
+
+                    this.showToast(
+                        "Please enter your name.",
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+
+                if (!email) {
+
+                    this.showToast(
+                        "Please enter your email.",
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+
+                if (password.length < 6) {
+
+                    this.showToast(
+                        "Password must contain at least 6 characters.",
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+
+                const users =
+                    this.getUsers();
+
+
+                const existingUser =
+                    users.find(
+                        user =>
+                            this.normalizeEmail(
+                                user.email
+                            ) === email
+                    );
+
+
+                if (existingUser) {
+
+                    this.showToast(
+                        "An account with this email already exists.",
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+
+                const user = {
+
+                    name,
+
+                    email,
+
+                    password,
+
+                    created:
+                        new Date().toISOString()
+
+                };
+
+
+                users.push(user);
+
+                this.saveUsers(users);
+
+
+                this.setCurrentUser(user);
+
+                /*
+                    Set currentUser BEFORE
+                    creating user data.
+                */
+
+                this.currentUser = user;
+
+
+                this.createFreshUserData();
+
+
+                this.signUpForm.reset();
+
+
+                this.showToast(
+                    "Account created successfully!",
+                    "success"
+                );
+
+
+                this.showApp(user);
+
+            }
+        );
+
+
+        /* SIGN IN */
+
+        this.signInForm.addEventListener(
+            "submit",
+            event => {
+
+                event.preventDefault();
+
+                const email =
+                    this.normalizeEmail(
+                        this.signInEmail.value
+                    );
+
+                const password =
+                    this.signInPassword.value;
+
+
+                const users =
+                    this.getUsers();
+
+
+                const user =
+                    users.find(
+                        account =>
+                            this.normalizeEmail(
+                                account.email
+                            ) === email &&
+                            account.password ===
+                                password
+                    );
+
+
+                if (!user) {
+
+                    this.showToast(
+                        "Incorrect email or password.",
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+
+                this.setCurrentUser(user);
+
+                this.showApp(user);
+
+                this.signInForm.reset();
+
+                this.showToast(
+                    `Welcome back, ${user.name}! 👋`,
+                    "success"
+                );
+
+            }
+        );
+
+
+        /* PASSWORD TOGGLE */
+
+        document
+            .querySelectorAll(".password-toggle")
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        const target =
+                            document.getElementById(
+                                button.dataset.target
+                            );
+
+                        if (!target) {
+                            return;
+                        }
+
+
+                        if (
+                            target.type ===
+                            "password"
+                        ) {
+
+                            target.type =
+                                "text";
+
+                            button.textContent =
+                                "🙈";
+
+                        } else {
+
+                            target.type =
+                                "password";
+
+                            button.textContent =
+                                "👁";
+
+                        }
+
+                    }
+                );
+
+            });
+
+
+        /* SIGN OUT */
+
+        const signOutBtn =
+            document.getElementById(
+                "signOutBtn"
+            );
+
+        if (signOutBtn) {
+
+            signOutBtn.addEventListener(
+                "click",
+                () => {
+
+                    if (this.reminderInterval) {
+
+                        clearInterval(
+                            this.reminderInterval
+                        );
+
+                        this.reminderInterval =
+                            null;
+
+                    }
+
+
+                    localStorage.removeItem(
+                        "workflow_user"
+                    );
+
+
+                    this.currentUser = null;
+
+
+                    this.showToast(
+                        "Signed out successfully.",
+                        "success"
+                    );
+
+
+                    setTimeout(
+                        () => {
+
+                            this.showAuth();
+
+                        },
+                        300
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* THEME */
+
+        this.themeToggle.addEventListener(
+            "click",
+            () => this.toggleTheme()
+        );
+
+
+        /* NEW TASK */
+
+        const newTaskBtn =
+            document.getElementById(
+                "newTaskBtn"
+            );
+
+        if (newTaskBtn) {
+
+            newTaskBtn.addEventListener(
+                "click",
+                () => this.openTaskModal()
+            );
+
+        }
+
+
+        const emptyAddBtn =
+            document.getElementById(
+                "emptyAddBtn"
+            );
+
+        if (emptyAddBtn) {
+
+            emptyAddBtn.addEventListener(
+                "click",
+                () => this.openTaskModal()
+            );
+
+        }
+
+
+        /* CLOSE MODAL */
+
+        const closeTaskModal =
+            document.getElementById(
+                "closeTaskModal"
+            );
+
+        if (closeTaskModal) {
+
+            closeTaskModal.addEventListener(
+                "click",
+                () => this.closeTaskModal()
+            );
+
+        }
+
+
+        const cancelTaskBtn =
+            document.getElementById(
+                "cancelTaskBtn"
+            );
+
+        if (cancelTaskBtn) {
+
+            cancelTaskBtn.addEventListener(
+                "click",
+                () => this.closeTaskModal()
+            );
+
+        }
+
+
+        /* TASK FORM */
+
+        this.taskForm.addEventListener(
+            "submit",
+            event => {
+
+                event.preventDefault();
+
+                this.saveTask();
+
+            }
+        );
+
+
+        /* SEARCH */
+
+        this.searchInput.addEventListener(
+            "input",
+            event => {
+
+                this.currentSearch =
+                    event.target.value
+                        .trim()
+                        .toLowerCase();
+
+                this.renderTasks();
+
+            }
+        );
+
+
+        /* PRIORITY FILTER */
+
+        this.priorityFilterElement
+            .addEventListener(
+                "change",
+                event => {
+
+                    this.priorityFilter =
+                        event.target.value
+                            .trim()
+                            .toLowerCase();
+
+                    this.renderTasks();
+
+                }
+            );
+
+
+        /* STATUS FILTER */
+
+        this.statusFilterElement
+            .addEventListener(
+                "change",
+                event => {
+
+                    this.statusFilter =
+                        event.target.value
+                            .trim()
+                            .toLowerCase();
+
+
+                    /*
+                        Only allow valid values.
+                    */
+
+                    if (
+                        this.statusFilter !== "all" &&
+                        this.statusFilter !== "pending" &&
+                        this.statusFilter !== "completed"
+                    ) {
+
+                        this.statusFilter =
+                            "all";
+
+                    }
+
+
+                    this.renderTasks();
+
+                }
+            );
+
+
+        /* SORT */
+
+        this.sortSelect.addEventListener(
+            "change",
+            event => {
+
+                this.sortBy =
+                    event.target.value;
+
+                this.renderTasks();
+
+            }
+        );
+
+
+        /* CATEGORY */
+
+        document
+            .querySelectorAll(".nav-item")
+            .forEach(item => {
+
+                item.addEventListener(
+                    "click",
+                    () => {
+
+                        document
+                            .querySelectorAll(
+                                ".nav-item"
+                            )
+                            .forEach(nav =>
+                                nav.classList.remove(
+                                    "active"
+                                )
+                            );
+
+
+                        item.classList.add(
+                            "active"
+                        );
+
+
+                        this.currentCategory =
+                            item.dataset.category ||
+                            "all";
+
+
+                        this.updateSectionTitle();
+
+                        this.renderTasks();
+
+
+                        this.sidebar
+                            .classList.remove(
+                                "open"
+                            );
+
+                    }
+                );
+
+            });
+
+
+        /* CONFIRM DELETE */
+
+        const confirmCancel =
+            document.getElementById(
+                "confirmCancel"
+            );
+
+        if (confirmCancel) {
+
+            confirmCancel.addEventListener(
+                "click",
+                () => {
+
+                    this.deleteTaskId =
+                        null;
+
+                    this.confirmModal
+                        .classList.add(
+                            "hidden"
+                        );
+
+                }
+            );
+
+        }
+
+
+        const confirmDelete =
+            document.getElementById(
+                "confirmDelete"
+            );
+
+        if (confirmDelete) {
+
+            confirmDelete.addEventListener(
+                "click",
+                () => this.confirmDelete()
+            );
+
+        }
+
+
+        /* MOBILE MENU */
+
+        const mobileMenu =
+            document.getElementById(
+                "mobileMenu"
+            );
+
+        if (mobileMenu) {
+
+            mobileMenu.addEventListener(
+                "click",
+                () => {
+
+                    this.sidebar
+                        .classList.add(
+                            "open"
+                        );
+
+                }
+            );
+
+        }
+
+
+        const closeSidebar =
+            document.getElementById(
+                "closeSidebar"
+            );
+
+        if (closeSidebar) {
+
+            closeSidebar.addEventListener(
+                "click",
+                () => {
+
+                    this.sidebar
+                        .classList.remove(
+                            "open"
+                        );
+
+                }
+            );
+
+        }
+
+
+        /* CLOSE TASK MODAL OUTSIDE */
+
+        this.taskModal.addEventListener(
+            "click",
+            event => {
+
+                if (
+                    event.target ===
+                    this.taskModal
+                ) {
+
+                    this.closeTaskModal();
+
+                }
+
+            }
+        );
+
+
+        /* CLOSE CONFIRM MODAL OUTSIDE */
+
+        this.confirmModal.addEventListener(
+            "click",
+            event => {
+
+                if (
+                    event.target ===
+                    this.confirmModal
+                ) {
+
+                    this.confirmModal
+                        .classList.add(
+                            "hidden"
+                        );
+
+                }
+
+            }
+        );
+
+
+        /* KEYBOARD */
+
+        document.addEventListener(
+            "keydown",
+            event => {
+
+                if (event.key === "Escape") {
+
+                    this.closeTaskModal();
+
+                    this.confirmModal
+                        .classList.add(
+                            "hidden"
+                        );
+
+                }
+
+
+                if (
+                    event.ctrlKey &&
+                    event.key.toLowerCase() === "k"
+                ) {
+
+                    event.preventDefault();
+
+                    this.searchInput.focus();
+
+                }
+
+
+                if (
+                    event.ctrlKey &&
+                    event.key.toLowerCase() === "n"
+                ) {
+
+                    event.preventDefault();
+
+                    this.openTaskModal();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* ================= USER DATA ================= */
+
+    getUserDataKey() {
+
+        if (
+            !this.currentUser ||
+            !this.currentUser.email
+        ) {
+
+            return null;
+
+        }
+
+
+        const email =
+            this.normalizeEmail(
+                this.currentUser.email
+            );
+
+
+        return `workflowProData_${email}`;
+
+    }
+
+
+    createFreshUserData() {
+
+        const dataKey =
+            this.getUserDataKey();
+
+        if (!dataKey) {
             return;
         }
 
-        if (isSignup) {
-            const name = this.authName.value.trim();
-            if (!name) {
-                this.showAuthError('Please enter your name');
-                return;
-            }
-            const user = { email, name, created: Date.now() };
-            localStorage.setItem('workflow_user', JSON.stringify(user));
-            this.currentUser = user;
-            this.isAuthenticated = true;
-            this.showApp();
-            this.showToast('✅ Account created successfully!', 'success');
-        } else {
-            const saved = localStorage.getItem('workflow_user');
-            if (saved) {
-                const user = JSON.parse(saved);
-                if (user.email === email) {
-                    this.currentUser = user;
-                    this.isAuthenticated = true;
-                    this.showApp();
-                    this.showToast(`👋 Welcome back, ${user.name}!`, 'success');
-                    return;
-                }
-            }
-            const newUser = { email, name: email.split('@')[0], created: Date.now() };
-            localStorage.setItem('workflow_user', JSON.stringify(newUser));
-            this.currentUser = newUser;
-            this.isAuthenticated = true;
-            this.showApp();
-            this.showToast(`👋 Welcome, ${newUser.name}!`, 'success');
-        }
+
+        this.tasks = [];
+
+        this.streakData = {
+            count: 0,
+            lastCompletedDate: null
+        };
+
+        this.achievements = [];
+
+
+        this.saveData();
+
     }
 
-    showAuthError(msg) {
-        this.authError.textContent = msg;
-        this.authError.classList.remove('hidden');
-        setTimeout(() => this.authError.classList.add('hidden'), 3000);
-    }
 
-    showApp() {
-        this.authScreen.classList.add('hidden');
-        this.app.classList.remove('hidden');
-        this.loadData();
-        this.renderAll();
-        this.checkStreak();
-
-        setInterval(() => this.checkReminders(), 30000);
-        setInterval(() => this.checkStreak(), 3600000);
-        setInterval(() => this.updateDate(), 60000);
-    }
-
-    signOut() {
-        this.isAuthenticated = false;
-        this.currentUser = null;
-        this.authScreen.classList.remove('hidden');
-        this.app.classList.add('hidden');
-        localStorage.removeItem('workflow_user');
-        this.showToast('👋 Signed out successfully', 'info');
-    }
-
-    // =========================================================
-    // DATE
-    // =========================================================
-    updateDate() {
-        const now = new Date();
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        const dateStr = now.toLocaleDateString('en-US', options);
-        if (this.todayDate) {
-            this.todayDate.textContent = dateStr;
-        }
-    }
-
-    // =========================================================
-    // THEME
-    // =========================================================
-    toggleTheme() {
-        this.isDarkMode = !this.isDarkMode;
-        document.body.classList.toggle('dark-mode', this.isDarkMode);
-        localStorage.setItem('workflow_theme', this.isDarkMode ? 'dark' : 'light');
-        this.showToast(this.isDarkMode ? '🌙 Dark mode' : '☀️ Light mode', 'info');
-    }
-
-    loadThemePreference() {
-        const saved = localStorage.getItem('workflow_theme');
-        if (saved === 'dark') {
-            this.isDarkMode = true;
-            document.body.classList.add('dark-mode');
-        }
-    }
-
-    // =========================================================
-    // DATA
-    // =========================================================
     loadData() {
-        const stored = localStorage.getItem('workflowProData');
-        if (stored) {
-            const data = JSON.parse(stored);
-            this.tasks = data.tasks || [];
-            this.streakData = data.streakData || { current: 0, best: 0, history: {} };
-            this.achievements = data.achievements || [];
-        } else {
-            this.tasks = [
-                {
-                    id: Date.now() + 1,
-                    title: 'Design new dashboard',
-                    notes: 'Create wireframes for the new dashboard',
-                    status: 'todo',
-                    priority: 'high',
-                    category: 'work',
-                    date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-                    time: '10:00',
-                    reminder: null,
-                    created: Date.now(),
-                    completedAt: null
-                },
-                {
-                    id: Date.now() + 2,
-                    title: 'Write weekly report',
-                    notes: 'Summarize team progress',
-                    status: 'inprogress',
-                    priority: 'medium',
-                    category: 'work',
-                    date: new Date(Date.now() + 172800000).toISOString().split('T')[0],
-                    time: '14:00',
-                    reminder: null,
-                    created: Date.now() - 86400000,
-                    completedAt: null
-                },
-                {
-                    id: Date.now() + 3,
-                    title: 'Morning workout',
-                    notes: '30 min cardio session',
-                    status: 'completed',
-                    priority: 'low',
-                    category: 'health',
-                    date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
-                    time: '07:00',
-                    reminder: null,
-                    created: Date.now() - 172800000,
-                    completedAt: Date.now() - 86400000
-                }
-            ];
-            this.streakData = { current: 0, best: 0, history: {} };
-            this.saveData();
+
+        const dataKey =
+            this.getUserDataKey();
+
+
+        if (!dataKey) {
+
+            this.tasks = [];
+
+            this.streakData = {
+                count: 0,
+                lastCompletedDate: null
+            };
+
+            this.achievements = [];
+
+            this.renderAll();
+
+            return;
+
         }
-        this.processReminders();
+
+
+        const saved =
+            localStorage.getItem(dataKey);
+
+
+        if (saved) {
+
+            try {
+
+                const data =
+                    JSON.parse(saved);
+
+
+                this.tasks =
+                    Array.isArray(data.tasks)
+                        ? data.tasks
+                        : [];
+
+
+                this.streakData =
+                    data.streakData || {
+                        count: 0,
+                        lastCompletedDate: null
+                    };
+
+
+                this.achievements =
+                    Array.isArray(
+                        data.achievements
+                    )
+                        ? data.achievements
+                        : [];
+
+
+                /*
+                    Make sure old tasks have
+                    reminderSent property.
+                */
+
+                this.tasks =
+                    this.tasks.map(task => ({
+                        ...task,
+                        reminderSent:
+                            task.reminderSent === true
+                    }));
+
+
+            } catch (error) {
+
+                console.error(
+                    "Error loading user data:",
+                    error
+                );
+
+
+                this.tasks = [];
+
+                this.streakData = {
+                    count: 0,
+                    lastCompletedDate: null
+                };
+
+                this.achievements = [];
+
+                this.saveData();
+
+            }
+
+        } else {
+
+            /*
+                Brand new user.
+                Start completely empty.
+            */
+
+            this.tasks = [];
+
+            this.streakData = {
+                count: 0,
+                lastCompletedDate: null
+            };
+
+            this.achievements = [];
+
+            this.saveData();
+
+        }
+
+
+        this.renderAll();
+
     }
+
 
     saveData() {
-        localStorage.setItem('workflowProData', JSON.stringify({
-            tasks: this.tasks,
-            streakData: this.streakData,
-            achievements: this.achievements
-        }));
-    }
 
-    // =========================================================
-    // STREAK
-    // =========================================================
-    checkStreak() {
-        const today = new Date().toISOString().split('T')[0];
-        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        const dataKey =
+            this.getUserDataKey();
 
-        const completedToday = this.tasks.filter(t =>
-            t.completedAt && t.completedAt.split('T')[0] === today
-        ).length;
 
-        if (completedToday > 0) {
-            if (!this.streakData.history[today]) {
-                this.streakData.history[today] = true;
-                this.streakData.current += 1;
-                if (this.streakData.current > this.streakData.best) {
-                    this.streakData.best = this.streakData.current;
-                    this.showToast(`🔥 New record! ${this.streakData.current}-day streak!`, 'streak');
-                }
-                this.saveData();
-                this.renderAll();
-                this.updateAchievements();
-            }
-        } else {
-            const yesterdayStreak = this.streakData.history[yesterday];
-            if (!yesterdayStreak && this.streakData.current > 0) {
-                this.streakData.current = 0;
-                this.saveData();
-                this.renderAll();
-            }
-        }
-    }
-
-    getStreakDays() {
-        const days = [];
-        const today = new Date();
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date(today);
-            date.setDate(date.getDate() - i);
-            const dateStr = date.toISOString().split('T')[0];
-            const isToday = i === 0;
-            const isFuture = date > new Date();
-            const completed = this.streakData.history[dateStr] || false;
-            days.push({ date: dateStr, completed, isToday, isFuture });
-        }
-        return days;
-    }
-
-    // =========================================================
-    // REMINDERS
-    // =========================================================
-    processReminders() {
-        this.reminders = [];
-        this.tasks.forEach(task => {
-            if (task.reminder && task.status !== 'completed') {
-                this.reminders.push({
-                    taskId: task.id,
-                    title: task.title,
-                    reminderTime: task.reminder,
-                    triggered: false
-                });
-            }
-        });
-    }
-
-    checkReminders() {
-        const now = new Date();
-        this.reminders.forEach(reminder => {
-            if (reminder.triggered) return;
-            const reminderTime = new Date(reminder.reminderTime);
-            if (reminderTime <= now) {
-                reminder.triggered = true;
-                this.showReminder(reminder);
-            }
-        });
-    }
-
-    showReminder(reminder) {
-        const content = document.getElementById('reminderContent');
-        content.innerHTML = `
-            <div style="font-size:20px;font-weight:700;margin:16px 0 8px;">${this.escapeHTML(reminder.title)}</div>
-            <div style="color:var(--text-secondary);font-size:14px;">This task is due soon. Don't forget to complete it.</div>
-        `;
-        this.reminderModal.classList.remove('hidden');
-        this.showToast(`⏰ Reminder: ${reminder.title}`, 'reminder');
-        if (Notification.permission === 'granted') {
-            new Notification('WorkFlow Reminder', {
-                body: `Don't forget: ${reminder.title}`,
-                icon: '📋'
-            });
-        }
-    }
-
-    // =========================================================
-    // ACHIEVEMENTS
-    // =========================================================
-    updateAchievements() {
-        const allAchievements = [
-            { id: 'first-task', icon: '🌟', name: 'First Task', condition: () => this.tasks.length >= 1 },
-            { id: 'streak-3', icon: '🔥', name: '3-Day Streak', condition: () => this.streakData.current >= 3 },
-            { id: 'streak-7', icon: '⚡', name: '7-Day Streak', condition: () => this.streakData.current >= 7 },
-            { id: 'streak-30', icon: '🏆', name: '30-Day Streak', condition: () => this.streakData.current >= 30 },
-            { id: 'tasks-10', icon: '📊', name: '10 Tasks Done', condition: () => this.tasks.filter(t => t.completedAt).length >= 10 },
-            { id: 'tasks-50', icon: '💎', name: '50 Tasks Done', condition: () => this.tasks.filter(t => t.completedAt).length >= 50 },
-            { id: 'all-done', icon: '✨', name: 'All Complete', condition: () => this.tasks.every(t => t.status === 'completed') && this.tasks.length > 0 }
-        ];
-
-        allAchievements.forEach(ach => {
-            if (!this.achievements.includes(ach.id) && ach.condition()) {
-                this.achievements.push(ach.id);
-                this.showToast(`${ach.icon} Achievement: ${ach.name}!`, 'streak');
-                this.saveData();
-            }
-        });
-        this.renderAchievements();
-    }
-
-    // =========================================================
-    // TASK CRUD
-    // =========================================================
-    addTask(title, notes, date, time, priority, category, reminder) {
-        const task = {
-            id: Date.now(),
-            title: title.trim(),
-            notes: notes.trim(),
-            status: 'todo',
-            priority: priority || 'medium',
-            category: category || 'personal',
-            date: date || '',
-            time: time || '',
-            reminder: reminder || null,
-            created: Date.now(),
-            completedAt: null
-        };
-        this.tasks.unshift(task);
-        this.processReminders();
-        this.saveData();
-        this.renderAll();
-        this.updateAchievements();
-        this.showToast(`✅ Task added: "${task.title}"`, 'success');
-        return task;
-    }
-
-    updateTask(id, updates) {
-        const task = this.tasks.find(t => t.id === id);
-        if (task) {
-            Object.assign(task, updates);
-            if (updates.status === 'completed' && !task.completedAt) {
-                task.completedAt = new Date().toISOString();
-                this.checkStreak();
-                this.updateAchievements();
-            }
-            if (updates.status !== 'completed') {
-                task.completedAt = null;
-            }
-            this.processReminders();
-            this.saveData();
-            this.renderAll();
-            this.updateAchievements();
-            this.showToast(`✏️ Task updated: "${task.title}"`, 'success');
-        }
-    }
-
-    deleteTask(id) {
-        const task = this.tasks.find(t => t.id === id);
-        if (task && confirm(`Delete "${task.title}"?`)) {
-            this.tasks = this.tasks.filter(t => t.id !== id);
-            this.processReminders();
-            this.saveData();
-            this.renderAll();
-            this.showToast(`🗑️ Task deleted: "${task.title}"`, 'error');
-        }
-    }
-
-    toggleComplete(id) {
-        const task = this.tasks.find(t => t.id === id);
-        if (task) {
-            if (task.status === 'completed') {
-                task.status = 'todo';
-                task.completedAt = null;
-            } else {
-                task.status = 'completed';
-                task.completedAt = new Date().toISOString();
-                this.checkStreak();
-                this.updateAchievements();
-            }
-            this.saveData();
-            this.renderAll();
-        }
-    }
-
-    // =========================================================
-    // RENDER
-    // =========================================================
-    renderAll() {
-        this.renderListTabs();
-        this.renderTasks();
-        this.renderStats();
-        this.renderStreak();
-        this.renderAchievements();
-        this.renderProgress();
-    }
-
-    renderListTabs() {
-        const container = document.getElementById('listTabs');
-        const lists = ['all', 'personal', 'work', 'study', 'health', 'others'];
-        const labels = ['📋 All Tasks', '👤 Personal', '💼 Work', '📚 Study', '💪 Health', '📌 Others'];
-
-        container.innerHTML = '';
-        lists.forEach((list, index) => {
-            const btn = document.createElement('button');
-            btn.className = `nav-item ${this.currentList === list ? 'active' : ''}`;
-            btn.dataset.list = list;
-            btn.textContent = labels[index];
-            btn.addEventListener('click', () => {
-                this.currentList = list;
-                this.renderAll();
-            });
-            container.appendChild(btn);
-        });
-    }
-
-    renderTasks() {
-        let tasks = [...this.tasks];
-
-        if (this.currentList !== 'all') {
-            tasks = tasks.filter(t => t.category === this.currentList);
-        }
-
-        if (this.currentFilter === 'active') {
-            tasks = tasks.filter(t => t.status !== 'completed');
-        } else if (this.currentFilter === 'completed') {
-            tasks = tasks.filter(t => t.status === 'completed');
-        }
-
-        const searchTerm = this.searchInput.value.toLowerCase();
-        if (searchTerm) {
-            tasks = tasks.filter(t => t.title.toLowerCase().includes(searchTerm));
-        }
-
-        tasks.sort((a, b) => {
-            if (this.currentSort === 'dueDate') {
-                const da = a.date ? new Date(`${a.date}T${a.time || '23:59'}`).getTime() : Infinity;
-                const db = b.date ? new Date(`${b.date}T${b.time || '23:59'}`).getTime() : Infinity;
-                return da - db;
-            }
-            if (this.currentSort === 'priority') {
-                const order = { high: 0, medium: 1, low: 2 };
-                return order[a.priority] - order[b.priority];
-            }
-            return b.created - a.created;
-        });
-
-        this.taskList.innerHTML = '';
-        this.emptyState.classList.toggle('hidden', tasks.length > 0);
-
-        tasks.forEach(task => {
-            const li = document.createElement('li');
-            const isCompleted = task.status === 'completed';
-            const isOverdue = task.date && !isCompleted &&
-                new Date(`${task.date}T${task.time || '23:59'}`).getTime() < Date.now();
-
-            li.className = `task-item priority-${task.priority}`;
-            if (isCompleted) li.classList.add('completed');
-            if (isOverdue) li.classList.add('overdue');
-
-            li.innerHTML = `
-                <button class="task-checkbox ${isCompleted ? 'checked' : ''}" data-id="${task.id}">
-                    ${isCompleted ? '✓' : ''}
-                </button>
-                <div class="task-body">
-                    <div class="task-title-text">${this.escapeHTML(task.title)}</div>
-                    ${task.notes ? `<div class="task-notes-preview">${this.escapeHTML(task.notes)}</div>` : ''}
-                    <div class="task-meta">
-                        ${task.date ? `<span class="due-date">${isOverdue ? '⚠️ Overdue — ' : ''}${this.formatDate(task.date, task.time)}</span>` : ''}
-                        <span class="meta-tag ${task.category}">${task.category}</span>
-                        <span class="meta-tag">${task.priority}</span>
-                    </div>
-                </div>
-                <div class="task-actions">
-                    <button class="task-action-btn edit" data-id="${task.id}">✏️</button>
-                    <button class="task-action-btn delete" data-id="${task.id}">🗑️</button>
-                </div>
-            `;
-
-            li.querySelector('.task-checkbox').addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.toggleComplete(task.id);
-            });
-
-            li.querySelector('.edit').addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.openEditModal(task.id);
-            });
-
-            li.querySelector('.delete').addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.deleteTask(task.id);
-            });
-
-            this.taskList.appendChild(li);
-        });
-    }
-
-    renderStats() {
-        const total = this.tasks.length;
-        const completed = this.tasks.filter(t => t.status === 'completed').length;
-        const pending = total - completed;
-
-        document.getElementById('totalTasks').textContent = total;
-        document.getElementById('pendingTasks').textContent = pending;
-        document.getElementById('completedTasks').textContent = completed;
-        document.getElementById('streakDisplay').textContent = `${this.streakData.current}d`;
-    }
-
-    renderStreak() {
-        document.getElementById('currentStreak').textContent = `${this.streakData.current} days`;
-        document.getElementById('bestStreak').textContent = `${this.streakData.best} days`;
-
-        const calendar = document.getElementById('streakCalendar');
-        const days = this.getStreakDays();
-        const dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-
-        calendar.innerHTML = '';
-        days.forEach((day, index) => {
-            const div = document.createElement('div');
-            div.className = 'streak-day';
-            if (day.completed) div.classList.add('completed');
-            if (day.isToday) div.classList.add('today');
-            if (day.isFuture) div.classList.add('future');
-            div.textContent = dayLabels[index];
-            calendar.appendChild(div);
-        });
-    }
-
-    renderAchievements() {
-        const container = document.getElementById('achievements');
-        const all = [
-            { id: 'first-task', icon: '🌟', name: 'First Task' },
-            { id: 'streak-3', icon: '🔥', name: '3-Day Streak' },
-            { id: 'streak-7', icon: '⚡', name: '7-Day Streak' },
-            { id: 'streak-30', icon: '🏆', name: '30-Day Streak' },
-            { id: 'tasks-10', icon: '📊', name: '10 Tasks Done' },
-            { id: 'tasks-50', icon: '💎', name: '50 Tasks Done' },
-            { id: 'all-done', icon: '✨', name: 'All Complete' }
-        ];
-
-        container.innerHTML = '';
-        all.forEach(ach => {
-            const div = document.createElement('div');
-            const unlocked = this.achievements.includes(ach.id);
-            div.className = `achievement-badge ${unlocked ? 'unlocked' : 'locked'}`;
-            div.innerHTML = `${ach.icon}<span class="tooltip">${ach.name}</span>`;
-            container.appendChild(div);
-        });
-    }
-
-    renderProgress() {
-        const today = new Date().toISOString().split('T')[0];
-        const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0];
-
-        const todayTasks = this.tasks.filter(t => t.createdAt && t.createdAt.split('T')[0] === today);
-        const todayDone = todayTasks.filter(t => t.status === 'completed').length;
-        const todayPct = todayTasks.length ? Math.round((todayDone / todayTasks.length) * 100) : 0;
-
-        const weekTasks = this.tasks.filter(t => t.createdAt && t.createdAt >= weekAgo);
-        const weekDone = weekTasks.filter(t => t.status === 'completed').length;
-        const weekPct = weekTasks.length ? Math.round((weekDone / weekTasks.length) * 100) : 0;
-
-        document.getElementById('todayProgress').style.width = `${todayPct}%`;
-        document.getElementById('todayPercent').textContent = `${todayPct}%`;
-        document.getElementById('weekProgress').style.width = `${weekPct}%`;
-        document.getElementById('weekPercent').textContent = `${weekPct}%`;
-    }
-
-    // =========================================================
-    // MODAL
-    // =========================================================
-    openAddModal() {
-        this.editingTaskId = null;
-        this.modalTitle.textContent = 'New Task';
-        this.taskTitle.value = '';
-        this.taskNotes.value = '';
-        this.taskDate.value = '';
-        this.taskTime.value = '';
-        this.taskPriority.value = 'medium';
-        this.taskCategory.value = 'personal';
-        this.taskReminder.value = '';
-        this.taskModal.classList.remove('hidden');
-        setTimeout(() => this.taskTitle.focus(), 100);
-    }
-
-    openEditModal(id) {
-        const task = this.tasks.find(t => t.id === id);
-        if (!task) return;
-
-        this.editingTaskId = id;
-        this.modalTitle.textContent = 'Edit Task';
-        this.taskTitle.value = task.title;
-        this.taskNotes.value = task.notes || '';
-        this.taskDate.value = task.date || '';
-        this.taskTime.value = task.time || '';
-        this.taskPriority.value = task.priority;
-        this.taskCategory.value = task.category;
-        this.taskReminder.value = task.reminder || '';
-        this.taskModal.classList.remove('hidden');
-        setTimeout(() => this.taskTitle.focus(), 100);
-    }
-
-    closeTaskModal() {
-        this.taskModal.classList.add('hidden');
-        this.editingTaskId = null;
-    }
-
-    saveTask() {
-        const title = this.taskTitle.value.trim();
-        if (!title) {
-            this.taskTitle.focus();
-            this.taskTitle.style.borderColor = '#e74c3c';
-            setTimeout(() => this.taskTitle.style.borderColor = '', 2000);
+        if (!dataKey) {
             return;
         }
 
-        const data = {
+
+        localStorage.setItem(
+            dataKey,
+            JSON.stringify({
+
+                tasks:
+                    this.tasks,
+
+                streakData:
+                    this.streakData,
+
+                achievements:
+                    this.achievements
+
+            })
+        );
+
+    }
+
+
+    /* ================= TASK CRUD ================= */
+
+    saveTask() {
+
+        const title =
+            this.taskTitle.value.trim();
+
+
+        if (!title) {
+
+            this.showToast(
+                "Please enter a task title.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const taskData = {
+
             title,
-            notes: this.taskNotes.value.trim(),
-            date: this.taskDate.value,
-            time: this.taskTime.value,
-            priority: this.taskPriority.value,
-            category: this.taskCategory.value,
-            reminder: this.taskReminder.value || null
+
+            notes:
+                this.taskNotes.value.trim(),
+
+            dueDate:
+                this.taskDueDate.value,
+
+            dueTime:
+                this.taskDueTime.value,
+
+            category:
+                this.taskCategory.value,
+
+            priority:
+                this.taskPriority.value,
+
+            reminder:
+                this.taskReminder.value
+
         };
+
+
+        /* EDIT */
 
         if (this.editingTaskId) {
-            const task = this.tasks.find(t => t.id === this.editingTaskId);
-            if (task) {
-                this.updateTask(this.editingTaskId, data);
+
+            const index =
+                this.tasks.findIndex(
+                    task =>
+                        task.id ===
+                        this.editingTaskId
+                );
+
+
+            if (index !== -1) {
+
+                this.tasks[index] = {
+
+                    ...this.tasks[index],
+
+                    ...taskData,
+
+                    /*
+                        Reset reminder when
+                        task details change.
+                    */
+
+                    reminderSent: false,
+
+                    updated:
+                        new Date().toISOString()
+
+                };
+
             }
-        } else {
-            this.addTask(data.title, data.notes, data.date, data.time, data.priority, data.category, data.reminder);
+
+
+            this.showToast(
+                "Task updated successfully.",
+                "success"
+            );
+
         }
+
+
+        /* CREATE */
+
+        else {
+
+            const task = {
+
+                id:
+                    this.generateId(),
+
+                ...taskData,
+
+                completed:
+                    false,
+
+                created:
+                    new Date().toISOString(),
+
+                reminderSent:
+                    false
+
+            };
+
+
+            this.tasks.unshift(task);
+
+
+            this.showToast(
+                "Task created successfully.",
+                "success"
+            );
+
+        }
+
+
+        this.saveData();
+
         this.closeTaskModal();
+
+        this.renderAll();
+
+
+        /*
+            Request browser notification
+            permission when a reminder is used.
+        */
+
+        if (
+            taskData.reminder &&
+            taskData.reminder !== "none"
+        ) {
+
+            this.requestNotificationPermission();
+
+        }
+
+
+        /*
+            Check immediately in case
+            reminder time has already arrived.
+        */
+
+        this.checkReminders();
+
     }
 
-    // =========================================================
-    // UTILITY
-    // =========================================================
-    escapeHTML(str) {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
+
+    toggleTask(id) {
+
+        const task =
+            this.tasks.find(
+                item =>
+                    item.id === id
+            );
+
+
+        if (!task) {
+            return;
+        }
+
+
+        task.completed =
+            !task.completed;
+
+
+        if (task.completed) {
+
+            /*
+                If completed, make sure
+                its reminder cannot fire.
+            */
+
+            task.reminderSent = true;
+
+
+            this.updateStreak();
+
+
+            this.showToast(
+                "Task completed! 🎉",
+                "success"
+            );
+
+        } else {
+
+            /*
+                If task is marked pending again,
+                allow its reminder to work again.
+            */
+
+            task.reminderSent = false;
+
+
+            this.showToast(
+                "Task marked as pending.",
+                "warning"
+            );
+
+        }
+
+
+        this.saveData();
+
+        this.renderAll();
+
+        this.checkReminders();
+
     }
 
-    formatDate(date, time) {
-        if (!date) return '';
-        const d = new Date(`${date}T${time || '00:00'}`);
-        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) +
-            (time ? `, ${d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}` : '');
+
+    editTask(id) {
+
+        const task =
+            this.tasks.find(
+                item =>
+                    item.id === id
+            );
+
+
+        if (!task) {
+            return;
+        }
+
+
+        this.editingTaskId = id;
+
+
+        this.modalTitle.textContent =
+            "Edit Task";
+
+
+        this.taskId.value =
+            id;
+
+
+        this.taskTitle.value =
+            task.title || "";
+
+
+        this.taskNotes.value =
+            task.notes || "";
+
+
+        this.taskDueDate.value =
+            task.dueDate || "";
+
+
+        this.taskDueTime.value =
+            task.dueTime || "";
+
+
+        this.taskCategory.value =
+            task.category || "personal";
+
+
+        this.taskPriority.value =
+            task.priority || "medium";
+
+
+        this.taskReminder.value =
+            task.reminder || "none";
+
+
+        this.taskModal
+            .classList.remove("hidden");
+
+
+        setTimeout(
+            () => this.taskTitle.focus(),
+            100
+        );
+
     }
 
-    showToast(message, type = 'info') {
-        const container = this.toastContainer;
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
 
-        const icons = {
-            success: '✅',
-            error: '❌',
-            streak: '🔥',
-            reminder: '⏰',
-            info: '📋'
-        };
+    askDeleteTask(id) {
 
-        toast.innerHTML = `
-            <span class="toast-icon">${icons[type] || '📋'}</span>
-            <span class="toast-message">${message}</span>
-            <button class="toast-close">✕</button>
+        const task =
+            this.tasks.find(
+                item =>
+                    item.id === id
+            );
+
+
+        if (!task) {
+            return;
+        }
+
+
+        this.deleteTaskId = id;
+
+
+        const confirmMessage =
+            document.getElementById(
+                "confirmMessage"
+            );
+
+
+        if (confirmMessage) {
+
+            confirmMessage.textContent =
+                `Delete "${task.title}"? This action cannot be undone.`;
+
+        }
+
+
+        this.confirmModal
+            .classList.remove("hidden");
+
+    }
+
+
+    confirmDelete() {
+
+        if (!this.deleteTaskId) {
+            return;
+        }
+
+
+        this.tasks =
+            this.tasks.filter(
+                task =>
+                    task.id !==
+                    this.deleteTaskId
+            );
+
+
+        this.saveData();
+
+
+        this.confirmModal
+            .classList.add("hidden");
+
+
+        this.deleteTaskId = null;
+
+
+        this.showToast(
+            "Task deleted.",
+            "success"
+        );
+
+
+        this.renderAll();
+
+    }
+
+
+    /* ================= MODALS ================= */
+
+    openTaskModal() {
+
+        this.editingTaskId = null;
+
+
+        this.modalTitle.textContent =
+            "Create New Task";
+
+
+        this.taskForm.reset();
+
+
+        this.taskId.value = "";
+
+
+        this.taskCategory.value =
+            "personal";
+
+
+        this.taskPriority.value =
+            "medium";
+
+
+        this.taskReminder.value =
+            "none";
+
+
+        this.taskModal
+            .classList.remove("hidden");
+
+
+        setTimeout(
+            () => this.taskTitle.focus(),
+            100
+        );
+
+    }
+
+
+    closeTaskModal() {
+
+        this.taskModal
+            .classList.add("hidden");
+
+
+        this.editingTaskId = null;
+
+
+        this.taskForm.reset();
+
+    }
+
+
+    /* ================= RENDER ================= */
+
+    renderAll() {
+
+        this.renderTasks();
+
+        this.renderStats();
+
+        this.renderCounts();
+
+        this.renderProgress();
+
+        this.renderStreak();
+
+        this.renderAchievements();
+
+        this.updateSectionTitle();
+
+    }
+
+
+    renderTasks() {
+
+        let filtered =
+            [...this.tasks];
+
+
+        /* CATEGORY */
+
+        if (
+            this.currentCategory !==
+            "all"
+        ) {
+
+            filtered =
+                filtered.filter(
+                    task =>
+                        task.category ===
+                        this.currentCategory
+                );
+
+        }
+
+
+        /* SEARCH */
+
+        if (this.currentSearch) {
+
+            filtered =
+                filtered.filter(task => {
+
+                    const searchable =
+                        [
+
+                            task.title,
+
+                            task.notes,
+
+                            task.category,
+
+                            task.priority
+
+                        ]
+                        .join(" ")
+                        .toLowerCase();
+
+
+                    return searchable.includes(
+                        this.currentSearch
+                    );
+
+                });
+
+        }
+
+
+        /* PRIORITY */
+
+        if (
+            this.priorityFilter !==
+            "all"
+        ) {
+
+            filtered =
+                filtered.filter(
+                    task =>
+                        task.priority ===
+                        this.priorityFilter
+                );
+
+        }
+
+
+        /* STATUS */
+
+        if (
+            this.statusFilter !==
+            "all"
+        ) {
+
+            if (
+                this.statusFilter ===
+                "completed"
+            ) {
+
+                filtered =
+                    filtered.filter(
+                        task =>
+                            task.completed ===
+                            true
+                    );
+
+            } else if (
+                this.statusFilter ===
+                "pending"
+            ) {
+
+                filtered =
+                    filtered.filter(
+                        task =>
+                            task.completed !==
+                            true
+                    );
+
+            }
+
+        }
+
+
+        /* SORT */
+
+        filtered.sort(
+            (a, b) =>
+                this.compareTasks(a, b)
+        );
+
+
+        this.taskList.innerHTML = "";
+
+
+        if (filtered.length === 0) {
+
+            this.emptyState
+                .classList.remove("hidden");
+
+
+            if (this.tasks.length === 0) {
+
+                this.emptyTitle.textContent =
+                    "No tasks yet";
+
+
+                this.emptyMessage.textContent =
+                    "Create your first task to get started.";
+
+            } else {
+
+                this.emptyTitle.textContent =
+                    "No matching tasks";
+
+
+                this.emptyMessage.textContent =
+                    "Try changing your filters or search.";
+
+            }
+
+
+            return;
+
+        }
+
+
+        this.emptyState
+            .classList.add("hidden");
+
+
+        filtered.forEach(
+            task => {
+
+                this.taskList
+                    .appendChild(
+                        this.createTaskElement(
+                            task
+                        )
+                    );
+
+            }
+        );
+
+    }
+
+
+    createTaskElement(task) {
+
+        const card =
+            document.createElement("div");
+
+
+        card.className =
+            `task-card ${
+                task.completed
+                    ? "completed"
+                    : ""
+            }`;
+
+
+        const overdue =
+            this.isOverdue(task);
+
+
+        card.innerHTML = `
+
+            <button
+                class="task-checkbox"
+                data-action="toggle"
+                data-id="${task.id}"
+                aria-label="${
+                    task.completed
+                        ? "Mark task as pending"
+                        : "Complete task"
+                }"
+            >
+                ${task.completed ? "✓" : ""}
+            </button>
+
+
+            <div class="task-info">
+
+                <div class="task-title-row">
+
+                    <span class="task-title">
+                        ${this.escapeHtml(
+                            task.title
+                        )}
+                    </span>
+
+                </div>
+
+
+                ${
+                    task.notes
+                        ? `
+                            <div class="task-notes">
+                                ${this.escapeHtml(
+                                    task.notes
+                                )}
+                            </div>
+                        `
+                        : ""
+                }
+
+
+                <div class="task-meta">
+
+                    <span class="task-tag">
+                        ${this.categoryIcon(
+                            task.category
+                        )}
+
+                        ${this.capitalize(
+                            task.category
+                        )}
+                    </span>
+
+
+                    <span
+                        class="priority-badge ${
+                            task.priority
+                        }"
+                    >
+                        ${this.capitalize(
+                            task.priority
+                        )}
+                    </span>
+
+
+                    ${
+                        task.dueDate
+                            ? `
+                                <span
+                                    class="due-badge ${
+                                        overdue &&
+                                        !task.completed
+                                            ? "overdue"
+                                            : ""
+                                    }"
+                                >
+                                    📅
+                                    ${this.formatDueDate(
+                                        task
+                                    )}
+                                </span>
+                            `
+                            : ""
+                    }
+
+                    ${
+                        task.reminder &&
+                        task.reminder !== "none"
+                            ? `
+                                <span class="reminder-badge">
+                                    🔔
+                                </span>
+                            `
+                            : ""
+                    }
+
+                </div>
+
+            </div>
+
+
+            <div class="task-actions">
+
+                <button
+                    class="task-action"
+                    data-action="edit"
+                    data-id="${task.id}"
+                    title="Edit"
+                >
+                    ✏️
+                </button>
+
+
+                <button
+                    class="task-action delete"
+                    data-action="delete"
+                    data-id="${task.id}"
+                    title="Delete"
+                >
+                    🗑️
+                </button>
+
+            </div>
+
         `;
 
-        toast.querySelector('.toast-close').addEventListener('click', () => {
-            toast.remove();
-        });
 
-        container.appendChild(toast);
+        card
+            .querySelectorAll(
+                "[data-action]"
+            )
+            .forEach(button => {
 
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 300);
-            }
-        }, 4000);
-    }
+                button.addEventListener(
+                    "click",
+                    event => {
 
-    // =========================================================
-    // EVENT LISTENERS
-    // =========================================================
-    initEventListeners() {
-        this.initAuthListeners();
+                        event.stopPropagation();
 
-        this.signOutBtn.addEventListener('click', () => this.signOut());
-        this.themeToggle.addEventListener('click', () => this.toggleTheme());
 
-        this.addTaskBtn.addEventListener('click', () => this.openAddModal());
+                        const action =
+                            button.dataset.action;
 
-        this.cancelModal.addEventListener('click', () => this.closeTaskModal());
-        this.closeModal.addEventListener('click', () => this.closeTaskModal());
 
-        this.closeReminder.addEventListener('click', () => this.reminderModal.classList.add('hidden'));
-        this.dismissReminder.addEventListener('click', () => this.reminderModal.classList.add('hidden'));
+                        const id =
+                            button.dataset.id;
 
-        document.getElementById('taskForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.saveTask();
-        });
 
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                this.currentFilter = btn.dataset.filter;
-                this.renderTasks();
-            });
-        });
+                        if (
+                            action ===
+                            "toggle"
+                        ) {
 
-        this.sortSelect.addEventListener('change', () => {
-            this.currentSort = this.sortSelect.value;
-            this.renderTasks();
-        });
+                            this.toggleTask(id);
 
-        this.searchInput.addEventListener('input', () => {
-            this.renderTasks();
-        });
+                        }
 
-        document.querySelectorAll('.overlay').forEach(overlay => {
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) {
-                    overlay.classList.add('hidden');
-                }
-            });
-        });
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                this.closeTaskModal();
-                this.reminderModal.classList.add('hidden');
-            }
-            if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
-                e.preventDefault();
-                this.openAddModal();
-            }
-        });
+                        if (
+                            action ===
+                            "edit"
+                        ) {
 
-        document.querySelectorAll('.reminder-preset').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const minutes = parseInt(btn.dataset.minutes);
-                const now = new Date();
-                now.setMinutes(now.getMinutes() + minutes);
-                const formatted = now.toISOString().slice(0, 16);
-                this.taskReminder.value = formatted;
-            });
-        });
+                            this.editTask(id);
 
-        this.menuToggle.addEventListener('click', () => {
-            this.sidebar.classList.toggle('open');
-        });
+                        }
 
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768) {
-                if (!this.sidebar.contains(e.target) && e.target !== this.menuToggle) {
-                    this.sidebar.classList.remove('open');
-                }
-            }
-        });
 
-        document.getElementById('exportData').addEventListener('click', () => {
-            const data = JSON.stringify({
-                tasks: this.tasks,
-                streakData: this.streakData,
-                achievements: this.achievements
-            }, null, 2);
-            const blob = new Blob([data], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `workflow_backup_${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            this.showToast('📤 Data exported successfully!', 'success');
-        });
+                        if (
+                            action ===
+                            "delete"
+                        ) {
 
-        document.getElementById('importData').addEventListener('click', () => {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    try {
-                        const data = JSON.parse(event.target.result);
-                        this.tasks = data.tasks || [];
-                        this.streakData = data.streakData || { current: 0, best: 0, history: {} };
-                        this.achievements = data.achievements || [];
-                        this.saveData();
-                        this.renderAll();
-                        this.showToast('📥 Data imported successfully!', 'success');
-                    } catch (err) {
-                        this.showToast('❌ Invalid file format', 'error');
+                            this.askDeleteTask(id);
+
+                        }
+
                     }
-                };
-                reader.readAsText(file);
-            };
-            input.click();
-        });
+                );
+
+            });
+
+
+        return card;
+
     }
+
+
+    /* ================= STATS ================= */
+
+    renderStats() {
+
+        const total =
+            this.tasks.length;
+
+
+        const completed =
+            this.tasks.filter(
+                task =>
+                    task.completed === true
+            ).length;
+
+
+        const pending =
+            this.tasks.filter(
+                task =>
+                    task.completed !== true
+            ).length;
+
+
+        const overdue =
+            this.tasks.filter(
+                task =>
+                    !task.completed &&
+                    this.isOverdue(task)
+            ).length;
+
+
+        const totalElement =
+            document.getElementById(
+                "totalTasks"
+            );
+
+        const completedElement =
+            document.getElementById(
+                "completedTasks"
+            );
+
+        const pendingElement =
+            document.getElementById(
+                "pendingTasks"
+            );
+
+        const overdueElement =
+            document.getElementById(
+                "overdueTasks"
+            );
+
+
+        if (totalElement) {
+            totalElement.textContent =
+                total;
+        }
+
+
+        if (completedElement) {
+            completedElement.textContent =
+                completed;
+        }
+
+
+        if (pendingElement) {
+            pendingElement.textContent =
+                pending;
+        }
+
+
+        if (overdueElement) {
+            overdueElement.textContent =
+                overdue;
+        }
+
+    }
+
+
+    renderCounts() {
+
+        const categories = [
+
+            "personal",
+
+            "work",
+
+            "study",
+
+            "health",
+
+            "others"
+
+        ];
+
+
+        const allCount =
+            document.getElementById(
+                "allCount"
+            );
+
+
+        if (allCount) {
+
+            allCount.textContent =
+                this.tasks.filter(
+                    task =>
+                        !task.completed
+                ).length;
+
+        }
+
+
+        categories.forEach(
+            category => {
+
+                const element =
+                    document.getElementById(
+                        `${category}Count`
+                    );
+
+
+                if (element) {
+
+                    element.textContent =
+                        this.tasks.filter(
+                            task =>
+                                task.category ===
+                                    category &&
+                                !task.completed
+                        ).length;
+
+                }
+
+            }
+        );
+
+    }
+
+
+    renderProgress() {
+
+        const total =
+            this.tasks.length;
+
+
+        const completed =
+            this.tasks.filter(
+                task =>
+                    task.completed === true
+            ).length;
+
+
+        const percentage =
+            total === 0
+                ? 0
+                : Math.round(
+                    (completed / total) *
+                    100
+                );
+
+
+        const percentElement =
+            document.getElementById(
+                "progressPercent"
+            );
+
+        const progressFill =
+            document.getElementById(
+                "progressFill"
+            );
+
+        const progressText =
+            document.getElementById(
+                "progressText"
+            );
+
+
+        if (percentElement) {
+
+            percentElement.textContent =
+                `${percentage}%`;
+
+        }
+
+
+        if (progressFill) {
+
+            progressFill.style.width =
+                `${percentage}%`;
+
+        }
+
+
+        if (progressText) {
+
+            progressText.textContent =
+                `${completed} of ${total} tasks completed`;
+
+        }
+
+    }
+
+
+    /* ================= STREAK ================= */
+
+    updateStreak() {
+
+        const today =
+            this.getToday();
+
+
+        if (
+            this.streakData
+                .lastCompletedDate ===
+            today
+        ) {
+
+            return;
+
+        }
+
+
+        const yesterday =
+            this.getDateOffset(-1);
+
+
+        if (
+            this.streakData
+                .lastCompletedDate ===
+            yesterday
+        ) {
+
+            this.streakData.count++;
+
+        } else {
+
+            this.streakData.count = 1;
+
+        }
+
+
+        this.streakData
+            .lastCompletedDate =
+            today;
+
+    }
+
+
+    renderStreak() {
+
+        const count =
+            this.streakData.count || 0;
+
+
+        const streakCount =
+            document.getElementById(
+                "streakCount"
+            );
+
+        const streakProgress =
+            document.getElementById(
+                "streakProgress"
+            );
+
+        const streakMessage =
+            document.getElementById(
+                "streakMessage"
+            );
+
+
+        if (streakCount) {
+
+            streakCount.textContent =
+                count;
+
+        }
+
+
+        const progress =
+            Math.min(
+                (count / 7) * 100,
+                100
+            );
+
+
+        if (streakProgress) {
+
+            streakProgress.style.width =
+                `${progress}%`;
+
+        }
+
+
+        let message =
+            "Complete a task today to start your streak!";
+
+
+        if (count === 1) {
+
+            message =
+                "Great start! Keep going 🔥";
+
+        } else if (count < 7 && count > 1) {
+
+            message =
+                `${7 - count} more day${
+                    7 - count === 1
+                        ? ""
+                        : "s"
+                } to reach a 7-day streak!`;
+
+        } else if (count >= 7) {
+
+            message =
+                "Amazing! You're on fire! 🔥";
+
+        }
+
+
+        if (streakMessage) {
+
+            streakMessage.textContent =
+                message;
+
+        }
+
+    }
+
+
+    /* ================= ACHIEVEMENTS ================= */
+
+    renderAchievements() {
+
+        const completed =
+            this.tasks.filter(
+                task =>
+                    task.completed === true
+            ).length;
+
+
+        const achievements = [];
+
+
+        if (completed >= 1) {
+
+            achievements.push(
+                "first-task"
+            );
+
+        }
+
+
+        if (completed >= 5) {
+
+            achievements.push(
+                "five-tasks"
+            );
+
+        }
+
+
+        if (completed >= 10) {
+
+            achievements.push(
+                "ten-tasks"
+            );
+
+        }
+
+
+        if (
+            this.streakData.count >= 7
+        ) {
+
+            achievements.push(
+                "seven-day"
+            );
+
+        }
+
+
+        this.achievements =
+            achievements;
+
+
+        /*
+            Save only if user exists.
+        */
+
+        if (this.currentUser) {
+
+            this.saveData();
+
+        }
+
+
+        const achievementCount =
+            document.getElementById(
+                "achievementCount"
+            );
+
+
+        if (achievementCount) {
+
+            achievementCount.textContent =
+                achievements.length;
+
+        }
+
+    }
+
+
+    /* ================= SECTION ================= */
+
+    updateSectionTitle() {
+
+        const names = {
+
+            all: "All Tasks",
+
+            personal: "Personal",
+
+            work: "Work",
+
+            study: "Study",
+
+            health: "Health",
+
+            others: "Others"
+
+        };
+
+
+        const title =
+            names[this.currentCategory] ||
+            "All Tasks";
+
+
+        const sectionTitle =
+            document.getElementById(
+                "sectionTitle"
+            );
+
+        const taskSummary =
+            document.getElementById(
+                "taskSummary"
+            );
+
+
+        if (sectionTitle) {
+
+            sectionTitle.textContent =
+                title;
+
+        }
+
+
+        if (taskSummary) {
+
+            taskSummary.textContent =
+                `${this.tasks.length} task${
+                    this.tasks.length === 1
+                        ? ""
+                        : "s"
+                } in your workspace`;
+
+        }
+
+    }
+
+
+    /* ================= THEME ================= */
+
+    loadTheme() {
+
+        const theme =
+            localStorage.getItem(
+                "workflow_theme"
+            );
+
+
+        if (theme === "dark") {
+
+            document.body
+                .classList.add("dark");
+
+
+            this.themeIcon.textContent =
+                "☀️";
+
+        } else {
+
+            document.body
+                .classList.remove("dark");
+
+
+            this.themeIcon.textContent =
+                "🌙";
+
+        }
+
+    }
+
+
+    toggleTheme() {
+
+        const isDark =
+            document.body
+                .classList.toggle("dark");
+
+
+        localStorage.setItem(
+            "workflow_theme",
+            isDark
+                ? "dark"
+                : "light"
+        );
+
+
+        this.themeIcon.textContent =
+            isDark
+                ? "☀️"
+                : "🌙";
+
+    }
+
+
+    /* ================= DATE ================= */
+
+    updateWelcome() {
+
+        const hour =
+            new Date().getHours();
+
+
+        let greeting =
+            "Good evening";
+
+
+        if (hour < 12) {
+
+            greeting =
+                "Good morning";
+
+        } else if (hour < 17) {
+
+            greeting =
+                "Good afternoon";
+
+        }
+
+
+        this.welcomeMessage.textContent =
+            `${greeting}! 👋`;
+
+
+        const now =
+            new Date();
+
+
+        this.currentDate.textContent =
+            now.toLocaleDateString(
+                "en-IN",
+                {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric"
+                }
+            );
+
+    }
+
+
+    getToday() {
+
+        const date =
+            new Date();
+
+
+        return this.formatDate(
+            date
+        );
+
+    }
+
+
+    getDateOffset(days) {
+
+        const date =
+            new Date();
+
+
+        date.setDate(
+            date.getDate() + days
+        );
+
+
+        return this.formatDate(
+            date
+        );
+
+    }
+
+
+    formatDate(date) {
+
+        const year =
+            date.getFullYear();
+
+
+        const month =
+            String(
+                date.getMonth() + 1
+            ).padStart(2, "0");
+
+
+        const day =
+            String(
+                date.getDate()
+            ).padStart(2, "0");
+
+
+        return `${year}-${month}-${day}`;
+
+    }
+
+
+    formatDueDate(task) {
+
+        if (!task.dueDate) {
+
+            return "";
+
+        }
+
+
+        const date =
+            new Date(
+                `${task.dueDate}T${
+                    task.dueTime ||
+                    "00:00"
+                }`
+            );
+
+
+        const today =
+            this.getToday();
+
+
+        if (
+            task.dueDate ===
+            today
+        ) {
+
+            return task.dueTime
+                ? `Today ${task.dueTime}`
+                : "Today";
+
+        }
+
+
+        return date.toLocaleDateString(
+            "en-IN",
+            {
+                day: "numeric",
+                month: "short"
+            }
+        );
+
+    }
+
+
+    isOverdue(task) {
+
+        if (
+            !task.dueDate ||
+            task.completed
+        ) {
+
+            return false;
+
+        }
+
+
+        const due =
+            new Date(
+                `${task.dueDate}T${
+                    task.dueTime ||
+                    "23:59"
+                }`
+            );
+
+
+        return due < new Date();
+
+    }
+
+
+    /* ================= SORT ================= */
+
+    compareTasks(a, b) {
+
+        switch (this.sortBy) {
+
+            case "created-asc":
+
+                return (
+                    new Date(a.created) -
+                    new Date(b.created)
+                );
+
+
+            case "due-asc":
+
+                return (
+                    this.getTaskDate(a) -
+                    this.getTaskDate(b)
+                );
+
+
+            case "priority": {
+
+                const order = {
+
+                    high: 1,
+
+                    medium: 2,
+
+                    low: 3
+
+                };
+
+
+                return (
+                    (order[a.priority] || 99) -
+                    (order[b.priority] || 99)
+                );
+
+            }
+
+
+            case "title":
+
+                return a.title.localeCompare(
+                    b.title
+                );
+
+
+            case "created-desc":
+
+            default:
+
+                return (
+                    new Date(b.created) -
+                    new Date(a.created)
+                );
+
+        }
+
+    }
+
+
+    getTaskDate(task) {
+
+        if (!task.dueDate) {
+
+            return new Date(
+                "2999-12-31"
+            );
+
+        }
+
+
+        return new Date(
+            `${task.dueDate}T${
+                task.dueTime ||
+                "23:59"
+            }`
+        );
+
+    }
+
+
+    /* ================= REMINDERS ================= */
+
+    requestNotificationPermission() {
+
+        if (
+            !("Notification" in window)
+        ) {
+
+            this.showToast(
+                "Your browser does not support notifications.",
+                "warning"
+            );
+
+            return;
+
+        }
+
+
+        if (
+            Notification.permission ===
+            "default"
+        ) {
+
+            Notification.requestPermission()
+                .then(permission => {
+
+                    if (
+                        permission ===
+                        "granted"
+                    ) {
+
+                        this.showToast(
+                            "Reminders enabled 🔔",
+                            "success"
+                        );
+
+                    } else {
+
+                        this.showToast(
+                            "Notification permission was denied.",
+                            "warning"
+                        );
+
+                    }
+
+                })
+                .catch(error => {
+
+                    console.error(
+                        "Notification permission error:",
+                        error
+                    );
+
+                });
+
+        }
+
+    }
+
+
+    getReminderMinutes(reminder) {
+
+        if (!reminder) {
+            return 0;
+        }
+
+
+        const value =
+            String(reminder)
+                .trim()
+                .toLowerCase();
+
+
+        if (
+            value === "none" ||
+            value === "off" ||
+            value === "0"
+        ) {
+
+            return 0;
+
+        }
+
+
+        /*
+            Numeric values are interpreted
+            as minutes.
+        */
+
+        if (
+            !isNaN(value)
+        ) {
+
+            return Number(value);
+
+        }
+
+
+        /*
+            Examples:
+            15min
+            30min
+            1hour
+            2hours
+            1day
+        */
+
+        if (
+            value.includes("day") ||
+            value.includes("24h")
+        ) {
+
+            const number =
+                parseFloat(value) || 1;
+
+            return number * 24 * 60;
+
+        }
+
+
+        if (
+            value.includes("hour") ||
+            value.includes("hr")
+        ) {
+
+            const number =
+                parseFloat(value) || 1;
+
+            return number * 60;
+
+        }
+
+
+        if (
+            value.includes("minute") ||
+            value.includes("min")
+        ) {
+
+            return (
+                parseFloat(value) || 0
+            );
+
+        }
+
+
+        return 0;
+
+    }
+
+
+    getReminderTime(task) {
+
+        if (
+            !task.dueDate ||
+            !task.reminder ||
+            task.reminder === "none"
+        ) {
+
+            return null;
+
+        }
+
+
+        const dueTime =
+            task.dueTime ||
+            "23:59";
+
+
+        const dueDate =
+            new Date(
+                `${task.dueDate}T${dueTime}`
+            );
+
+
+        if (
+            isNaN(
+                dueDate.getTime()
+            )
+        ) {
+
+            return null;
+
+        }
+
+
+        const reminderMinutes =
+            this.getReminderMinutes(
+                task.reminder
+            );
+
+
+        if (
+            reminderMinutes <= 0
+        ) {
+
+            return null;
+
+        }
+
+
+        return new Date(
+            dueDate.getTime() -
+            reminderMinutes *
+            60 *
+            1000
+        );
+
+    }
+
+
+    checkReminders() {
+
+        if (!this.currentUser) {
+            return;
+        }
+
+
+        const now =
+            new Date();
+
+
+        let changed = false;
+
+
+        this.tasks.forEach(task => {
+
+            /*
+                Completed tasks should never
+                receive a reminder.
+            */
+
+            if (
+                task.completed === true
+            ) {
+
+                return;
+
+            }
+
+
+            /*
+                No reminder selected.
+            */
+
+            if (
+                !task.reminder ||
+                task.reminder === "none"
+            ) {
+
+                return;
+
+            }
+
+
+            /*
+                Already sent.
+            */
+
+            if (
+                task.reminderSent === true
+            ) {
+
+                return;
+
+            }
+
+
+            const reminderTime =
+                this.getReminderTime(task);
+
+
+            if (!reminderTime) {
+
+                return;
+
+            }
+
+
+            /*
+                Reminder time reached.
+            */
+
+            if (
+                now >= reminderTime
+            ) {
+
+                this.sendReminderNotification(
+                    task
+                );
+
+
+                task.reminderSent =
+                    true;
+
+
+                changed = true;
+
+            }
+
+        });
+
+
+        if (changed) {
+
+            this.saveData();
+
+        }
+
+    }
+
+
+    sendReminderNotification(task) {
+
+        const dueText =
+            task.dueTime
+                ? `Due at ${task.dueTime}`
+                : "Due today";
+
+
+        /*
+            Browser notification.
+        */
+
+        if (
+            "Notification" in window &&
+            Notification.permission ===
+                "granted"
+        ) {
+
+            try {
+
+                new Notification(
+                    "⏰ WorkFlow Pro Reminder",
+                    {
+                        body:
+                            `${task.title}\n${dueText}`,
+                        icon:
+                            "favicon.ico"
+                    }
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Notification error:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        /*
+            In-app notification.
+        */
+
+        this.showToast(
+            `⏰ Reminder: ${task.title}`,
+            "warning"
+        );
+
+    }
+
+
+    startReminderChecker() {
+
+        /*
+            Prevent duplicate intervals.
+        */
+
+        if (
+            this.reminderInterval
+        ) {
+
+            clearInterval(
+                this.reminderInterval
+            );
+
+        }
+
+
+        /*
+            Check immediately.
+        */
+
+        this.checkReminders();
+
+
+        /*
+            Check every 10 seconds.
+        */
+
+        this.reminderInterval =
+            setInterval(
+                () => {
+
+                    /*
+                        Only check while a user
+                        is logged in.
+                    */
+
+                    if (
+                        this.currentUser
+                    ) {
+
+                        this.checkReminders();
+
+                    }
+
+                },
+                10000
+            );
+
+    }
+
+
+    /* ================= UTILITIES ================= */
+
+    generateId() {
+
+        return (
+            Date.now().toString(36) +
+            Math.random()
+                .toString(36)
+                .substring(2, 9)
+        );
+
+    }
+
+
+    categoryIcon(category) {
+
+        const icons = {
+
+            personal: "👤",
+
+            work: "💼",
+
+            study: "📚",
+
+            health: "❤️",
+
+            others: "📌"
+
+        };
+
+
+        return (
+            icons[category] ||
+            "📌"
+        );
+
+    }
+
+
+    capitalize(value) {
+
+        if (!value) {
+            return "";
+        }
+
+
+        return (
+            value.charAt(0).toUpperCase() +
+            value.slice(1)
+        );
+
+    }
+
+
+    escapeHtml(value) {
+
+        return String(value || "")
+
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+
+            .replace(
+                /</g,
+                "&lt;"
+            )
+
+            .replace(
+                />/g,
+                "&gt;"
+            )
+
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
+    }
+
+
+    showToast(
+        message,
+        type = "success"
+    ) {
+
+        if (!this.toastContainer) {
+            return;
+        }
+
+
+        const toast =
+            document.createElement("div");
+
+
+        toast.className =
+            `toast ${type}`;
+
+
+        toast.textContent =
+            message;
+
+
+        this.toastContainer
+            .appendChild(toast);
+
+
+        setTimeout(
+            () => {
+
+                toast.style.opacity =
+                    "0";
+
+                toast.style.transform =
+                    "translateX(30px)";
+
+
+                setTimeout(
+                    () => {
+
+                        toast.remove();
+
+                    },
+                    250
+                );
+
+            },
+            2800
+        );
+
+    }
+
 }
 
-// =========================================================
-// INIT
-// =========================================================
-document.addEventListener('DOMContentLoaded', () => {
-    const app = new WorkFlowPro();
-});
+
+/* ================= START APP ================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        window.workflowPro =
+            new WorkFlowPro();
+
+    }
+);
