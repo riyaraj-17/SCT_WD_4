@@ -1,36 +1,48 @@
 /* =========================================================
-   WorkFlow Pro - Complete JavaScript
-   GitHub Pages Ready
+   WORKFLOW PRO
+   Complete JavaScript
+   Matches the supplied index.html + style.css
    ========================================================= */
 
 class WorkFlowPro {
+
     constructor() {
         this.currentUser = null;
         this.tasks = [];
+
         this.currentCategory = "all";
         this.statusFilter = "all";
         this.priorityFilter = "all";
-        this.sortBy = "newest";
+        this.sortBy = "created-desc";
         this.searchQuery = "";
+
         this.editingTaskId = null;
         this.confirmAction = null;
+
         this.reminderInterval = null;
 
         this.init();
     }
 
-    /* =========================================================
-       INITIALIZATION
-       ========================================================= */
+    /* =====================================================
+       INIT
+       ===================================================== */
 
     init() {
         this.cacheElements();
         this.bindEvents();
+        this.loadTheme();
         this.checkLoggedInUser();
     }
 
+    /* =====================================================
+       ELEMENTS
+       ===================================================== */
+
     cacheElements() {
-        // Auth
+
+        /* AUTH */
+
         this.authScreen = document.getElementById("authScreen");
         this.app = document.getElementById("app");
 
@@ -47,11 +59,9 @@ class WorkFlowPro {
         this.signUpEmail = document.getElementById("signUpEmail");
         this.signUpPassword = document.getElementById("signUpPassword");
 
-        // Password toggles
-        this.signInPasswordToggle = document.getElementById("signInPasswordToggle");
-        this.signUpPasswordToggle = document.getElementById("signUpPasswordToggle");
 
-        // Sidebar
+        /* SIDEBAR */
+
         this.sidebar = document.getElementById("sidebar");
         this.closeSidebar = document.getElementById("closeSidebar");
         this.mobileMenu = document.getElementById("mobileMenu");
@@ -64,8 +74,12 @@ class WorkFlowPro {
         this.streakProgress = document.getElementById("streakProgress");
         this.streakMessage = document.getElementById("streakMessage");
 
-        // Navigation
-        this.navItems = document.querySelectorAll(".nav-item[data-category]");
+
+        /* NAVIGATION */
+
+        this.navItems = document.querySelectorAll(
+            ".nav-item[data-category]"
+        );
 
         this.allCount = document.getElementById("allCount");
         this.personalCount = document.getElementById("personalCount");
@@ -73,495 +87,810 @@ class WorkFlowPro {
         this.studyCount = document.getElementById("studyCount");
         this.healthCount = document.getElementById("healthCount");
         this.othersCount = document.getElementById("othersCount");
-        this.achievementCount = document.getElementById("achievementCount");
 
-        // Header
-        this.welcomeMessage = document.getElementById("welcomeMessage");
-        this.currentDate = document.getElementById("currentDate");
-        this.searchInput = document.getElementById("searchInput");
-        this.newTaskBtn = document.getElementById("newTaskBtn");
+        this.achievementCount =
+            document.getElementById("achievementCount");
 
-        // Stats
-        this.totalTasks = document.getElementById("totalTasks");
-        this.completedTasks = document.getElementById("completedTasks");
-        this.pendingTasks = document.getElementById("pendingTasks");
-        this.overdueTasks = document.getElementById("overdueTasks");
 
-        // Filters
-        this.priorityFilterElement = document.getElementById("priorityFilter");
-        this.statusFilterElement = document.getElementById("statusFilter");
-        this.sortSelect = document.getElementById("sortSelect");
+        /* HEADER */
 
-        // Tasks
-        this.taskList = document.getElementById("taskList");
-        this.emptyState = document.getElementById("emptyState");
+        this.welcomeMessage =
+            document.getElementById("welcomeMessage");
 
-        // Task modal
-        this.taskModal = document.getElementById("taskModal");
-        this.modalTitle = document.getElementById("modalTitle");
-        this.closeTaskModal = document.getElementById("closeTaskModal");
-        this.taskForm = document.getElementById("taskForm");
+        this.currentDate =
+            document.getElementById("currentDate");
 
-        this.taskId = document.getElementById("taskId");
-        this.taskTitle = document.getElementById("taskTitle");
-        this.taskNotes = document.getElementById("taskNotes");
-        this.taskDueDate = document.getElementById("taskDueDate");
-        this.taskDueTime = document.getElementById("taskDueTime");
-        this.taskCategory = document.getElementById("taskCategory");
-        this.taskPriority = document.getElementById("taskPriority");
-        this.taskReminder = document.getElementById("taskReminder");
-        this.cancelTaskBtn = document.getElementById("cancelTaskBtn");
+        this.searchInput =
+            document.getElementById("searchInput");
 
-        // Confirm modal
-        this.confirmModal = document.getElementById("confirmModal");
-        this.confirmTitle = document.getElementById("confirmTitle");
-        this.confirmMessage = document.getElementById("confirmMessage");
-        this.confirmCancel = document.getElementById("confirmCancel");
-        this.confirmDelete = document.getElementById("confirmDelete");
+        this.newTaskBtn =
+            document.getElementById("newTaskBtn");
 
-        // Theme
-        this.themeToggle = document.getElementById("themeToggle");
-        this.themeIcon = document.getElementById("themeIcon");
 
-        // Sign out
-        this.signOutBtn = document.getElementById("signOutBtn");
+        /* STATS */
 
-        // Progress
-        this.progressPercent = document.getElementById("progressPercent");
-        this.progressFill = document.getElementById("progressFill");
-        this.progressText = document.getElementById("progressText");
+        this.totalTasks =
+            document.getElementById("totalTasks");
 
-        // Toast
-        this.toastContainer = document.getElementById("toastContainer");
+        this.completedTasks =
+            document.getElementById("completedTasks");
+
+        this.pendingTasks =
+            document.getElementById("pendingTasks");
+
+        this.overdueTasks =
+            document.getElementById("overdueTasks");
+
+
+        /* FILTERS */
+
+        this.priorityFilterElement =
+            document.getElementById("priorityFilter");
+
+        this.statusFilterElement =
+            document.getElementById("statusFilter");
+
+        this.sortSelect =
+            document.getElementById("sortSelect");
+
+
+        /* TASKS */
+
+        this.taskList =
+            document.getElementById("taskList");
+
+        this.emptyState =
+            document.getElementById("emptyState");
+
+        this.emptyAddBtn =
+            document.getElementById("emptyAddBtn");
+
+        this.emptyTitle =
+            document.getElementById("emptyTitle");
+
+        this.emptyMessage =
+            document.getElementById("emptyMessage");
+
+        this.sectionTitle =
+            document.getElementById("sectionTitle");
+
+        this.taskSummary =
+            document.getElementById("taskSummary");
+
+
+        /* TASK MODAL */
+
+        this.taskModal =
+            document.getElementById("taskModal");
+
+        this.modalTitle =
+            document.getElementById("modalTitle");
+
+        this.closeTaskModal =
+            document.getElementById("closeTaskModal");
+
+        this.taskForm =
+            document.getElementById("taskForm");
+
+        this.taskId =
+            document.getElementById("taskId");
+
+        this.taskTitle =
+            document.getElementById("taskTitle");
+
+        this.taskNotes =
+            document.getElementById("taskNotes");
+
+        this.taskDueDate =
+            document.getElementById("taskDueDate");
+
+        this.taskDueTime =
+            document.getElementById("taskDueTime");
+
+        this.taskCategory =
+            document.getElementById("taskCategory");
+
+        this.taskPriority =
+            document.getElementById("taskPriority");
+
+        this.taskReminder =
+            document.getElementById("taskReminder");
+
+        this.cancelTaskBtn =
+            document.getElementById("cancelTaskBtn");
+
+
+        /* CONFIRM MODAL */
+
+        this.confirmModal =
+            document.getElementById("confirmModal");
+
+        this.confirmTitle =
+            document.getElementById("confirmTitle");
+
+        this.confirmMessage =
+            document.getElementById("confirmMessage");
+
+        this.confirmCancel =
+            document.getElementById("confirmCancel");
+
+        this.confirmDelete =
+            document.getElementById("confirmDelete");
+
+
+        /* THEME */
+
+        this.themeToggle =
+            document.getElementById("themeToggle");
+
+        this.themeIcon =
+            document.getElementById("themeIcon");
+
+
+        /* SIGN OUT */
+
+        this.signOutBtn =
+            document.getElementById("signOutBtn");
+
+
+        /* PROGRESS */
+
+        this.progressPercent =
+            document.getElementById("progressPercent");
+
+        this.progressFill =
+            document.getElementById("progressFill");
+
+        this.progressText =
+            document.getElementById("progressText");
+
+
+        /* TOAST */
+
+        this.toastContainer =
+            document.getElementById("toastContainer");
     }
 
+
+    /* =====================================================
+       EVENTS
+       ===================================================== */
+
     bindEvents() {
-        /* ---------- AUTH ---------- */
 
-        if (this.signInTab) {
-            this.signInTab.addEventListener("click", () => {
-                this.showSignIn();
-            });
-        }
+        /* AUTH TABS */
 
-        if (this.signUpTab) {
-            this.signUpTab.addEventListener("click", () => {
-                this.showSignUp();
-            });
-        }
+        this.signInTab?.addEventListener(
+            "click",
+            () => this.showSignIn()
+        );
 
-        if (this.signInForm) {
-            this.signInForm.addEventListener("submit", (e) => {
-                e.preventDefault();
+        this.signUpTab?.addEventListener(
+            "click",
+            () => this.showSignUp()
+        );
+
+
+        /* AUTH FORMS */
+
+        this.signInForm?.addEventListener(
+            "submit",
+            (event) => {
+                event.preventDefault();
                 this.signIn();
-            });
-        }
+            }
+        );
 
-        if (this.signUpForm) {
-            this.signUpForm.addEventListener("submit", (e) => {
-                e.preventDefault();
+        this.signUpForm?.addEventListener(
+            "submit",
+            (event) => {
+                event.preventDefault();
                 this.signUp();
+            }
+        );
+
+
+        /* PASSWORD TOGGLE */
+
+        document
+            .querySelectorAll(".password-toggle")
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        const targetId =
+                            button.dataset.target;
+
+                        const input =
+                            document.getElementById(
+                                targetId
+                            );
+
+                        if (!input) return;
+
+                        if (
+                            input.type === "password"
+                        ) {
+                            input.type = "text";
+                            button.textContent = "🙈";
+                        } else {
+                            input.type = "password";
+                            button.textContent = "👁";
+                        }
+                    }
+                );
             });
-        }
 
-        if (this.signInPasswordToggle) {
-            this.signInPasswordToggle.addEventListener("click", () => {
-                this.togglePassword(this.signInPassword, this.signInPasswordToggle);
-            });
-        }
 
-        if (this.signUpPasswordToggle) {
-            this.signUpPasswordToggle.addEventListener("click", () => {
-                this.togglePassword(this.signUpPassword, this.signUpPasswordToggle);
-            });
-        }
+        /* NAVIGATION */
 
-        /* ---------- APP ---------- */
+        this.navItems.forEach(item => {
 
-        this.navItems.forEach((item) => {
-            item.addEventListener("click", () => {
-                const category = item.dataset.category || "all";
-                this.currentCategory = category;
+            item.addEventListener(
+                "click",
+                () => {
 
-                this.updateActiveNavigation();
-                this.renderTasks();
+                    this.currentCategory =
+                        item.dataset.category || "all";
 
-                this.closeMobileSidebar();
-            });
+                    this.updateNavigation();
+                    this.renderTasks();
+
+                    this.closeMobileSidebar();
+                }
+            );
         });
 
-        if (this.searchInput) {
-            this.searchInput.addEventListener("input", () => {
-                this.searchQuery = this.searchInput.value.trim().toLowerCase();
-                this.renderTasks();
-            });
-        }
 
-        if (this.priorityFilterElement) {
-            this.priorityFilterElement.addEventListener("change", () => {
+        /* SEARCH */
+
+        this.searchInput?.addEventListener(
+            "input",
+            () => {
+
+                this.searchQuery =
+                    this.searchInput.value
+                        .trim()
+                        .toLowerCase();
+
+                this.renderTasks();
+            }
+        );
+
+
+        /* PRIORITY */
+
+        this.priorityFilterElement?.addEventListener(
+            "change",
+            () => {
+
                 this.priorityFilter =
-                    this.priorityFilterElement.value.toLowerCase();
+                    this.priorityFilterElement.value;
 
                 this.renderTasks();
-            });
-        }
+            }
+        );
 
-        if (this.statusFilterElement) {
-            this.statusFilterElement.addEventListener("change", () => {
+
+        /* STATUS */
+
+        this.statusFilterElement?.addEventListener(
+            "change",
+            () => {
+
                 this.statusFilter =
-                    this.statusFilterElement.value.toLowerCase();
+                    this.statusFilterElement.value;
 
                 this.renderTasks();
-            });
-        }
+            }
+        );
 
-        if (this.sortSelect) {
-            this.sortSelect.addEventListener("change", () => {
-                this.sortBy = this.sortSelect.value;
+
+        /* SORT */
+
+        this.sortSelect?.addEventListener(
+            "change",
+            () => {
+
+                this.sortBy =
+                    this.sortSelect.value;
+
                 this.renderTasks();
-            });
-        }
+            }
+        );
 
-        if (this.newTaskBtn) {
-            this.newTaskBtn.addEventListener("click", () => {
-                this.openNewTaskModal();
-            });
-        }
 
-        if (this.closeTaskModal) {
-            this.closeTaskModal.addEventListener("click", () => {
-                this.closeTaskModalWindow();
-            });
-        }
+        /* NEW TASK */
 
-        if (this.cancelTaskBtn) {
-            this.cancelTaskBtn.addEventListener("click", () => {
-                this.closeTaskModalWindow();
-            });
-        }
+        this.newTaskBtn?.addEventListener(
+            "click",
+            () => this.openNewTaskModal()
+        );
 
-        if (this.taskForm) {
-            this.taskForm.addEventListener("submit", (e) => {
-                e.preventDefault();
+
+        /* EMPTY STATE CREATE TASK */
+
+        this.emptyAddBtn?.addEventListener(
+            "click",
+            () => this.openNewTaskModal()
+        );
+
+
+        /* TASK MODAL */
+
+        this.closeTaskModal?.addEventListener(
+            "click",
+            () => this.closeTaskModalWindow()
+        );
+
+        this.cancelTaskBtn?.addEventListener(
+            "click",
+            () => this.closeTaskModalWindow()
+        );
+
+
+        this.taskForm?.addEventListener(
+            "submit",
+            (event) => {
+
+                event.preventDefault();
+
                 this.saveTask();
-            });
-        }
+            }
+        );
 
-        if (this.confirmCancel) {
-            this.confirmCancel.addEventListener("click", () => {
-                this.closeConfirmModal();
-            });
-        }
 
-        if (this.confirmDelete) {
-            this.confirmDelete.addEventListener("click", () => {
-                if (typeof this.confirmAction === "function") {
+        /* CONFIRM MODAL */
+
+        this.confirmCancel?.addEventListener(
+            "click",
+            () => this.closeConfirmModal()
+        );
+
+        this.confirmDelete?.addEventListener(
+            "click",
+            () => {
+
+                if (
+                    typeof this.confirmAction ===
+                    "function"
+                ) {
                     this.confirmAction();
                 }
 
                 this.closeConfirmModal();
-            });
-        }
-
-        if (this.themeToggle) {
-            this.themeToggle.addEventListener("click", () => {
-                this.toggleTheme();
-            });
-        }
-
-        if (this.signOutBtn) {
-            this.signOutBtn.addEventListener("click", () => {
-                this.signOut();
-            });
-        }
-
-        if (this.mobileMenu) {
-            this.mobileMenu.addEventListener("click", () => {
-                this.openMobileSidebar();
-            });
-        }
-
-        if (this.closeSidebar) {
-            this.closeSidebar.addEventListener("click", () => {
-                this.closeMobileSidebar();
-            });
-        }
-
-        /* ---------- CLOSE MODALS ---------- */
-
-        window.addEventListener("click", (e) => {
-            if (e.target === this.taskModal) {
-                this.closeTaskModalWindow();
             }
+        );
 
-            if (e.target === this.confirmModal) {
-                this.closeConfirmModal();
-            }
-        });
 
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "Escape") {
-                this.closeTaskModalWindow();
-                this.closeConfirmModal();
+        /* THEME */
+
+        this.themeToggle?.addEventListener(
+            "click",
+            () => this.toggleTheme()
+        );
+
+
+        /* SIGN OUT */
+
+        this.signOutBtn?.addEventListener(
+            "click",
+            () => this.signOut()
+        );
+
+
+        /* MOBILE */
+
+        this.mobileMenu?.addEventListener(
+            "click",
+            () => this.openMobileSidebar()
+        );
+
+        this.closeSidebar?.addEventListener(
+            "click",
+            () => this.closeMobileSidebar()
+        );
+
+
+        /* CLICK OUTSIDE MODALS */
+
+        window.addEventListener(
+            "click",
+            (event) => {
+
+                if (
+                    event.target ===
+                    this.taskModal
+                ) {
+                    this.closeTaskModalWindow();
+                }
+
+                if (
+                    event.target ===
+                    this.confirmModal
+                ) {
+                    this.closeConfirmModal();
+                }
             }
-        });
+        );
+
+
+        /* ESCAPE */
+
+        document.addEventListener(
+            "keydown",
+            (event) => {
+
+                if (event.key === "Escape") {
+                    this.closeTaskModalWindow();
+                    this.closeConfirmModal();
+                }
+            }
+        );
     }
 
-    /* =========================================================
-       AUTHENTICATION
-       ========================================================= */
+
+    /* =====================================================
+       AUTH
+       ===================================================== */
 
     checkLoggedInUser() {
-        const savedUser = localStorage.getItem("workflow_user");
 
-        if (!savedUser) {
+        const saved =
+            localStorage.getItem(
+                "workflow_user"
+            );
+
+        if (!saved) {
             this.showAuth();
             return;
         }
 
         try {
-            this.currentUser = JSON.parse(savedUser);
+
+            const user =
+                JSON.parse(saved);
 
             if (
-                !this.currentUser ||
-                !this.currentUser.email ||
-                !this.currentUser.name
+                !user ||
+                !user.email ||
+                !user.name
             ) {
-                throw new Error("Invalid user");
+                throw new Error(
+                    "Invalid user"
+                );
             }
+
+            this.currentUser = user;
 
             this.loadUserData();
             this.showApp();
-        } catch (error) {
-            console.error("Login data error:", error);
 
-            localStorage.removeItem("workflow_user");
-            this.currentUser = null;
+        } catch (error) {
+
+            console.error(error);
+
+            localStorage.removeItem(
+                "workflow_user"
+            );
 
             this.showAuth();
         }
     }
 
-    showAuth() {
-        if (this.authScreen) {
-            this.authScreen.classList.remove("hidden");
-        }
 
-        if (this.app) {
-            this.app.classList.add("hidden");
-        }
+    showAuth() {
+
+        this.authScreen?.classList.remove(
+            "hidden"
+        );
+
+        this.app?.classList.add(
+            "hidden"
+        );
     }
 
-    showApp() {
-        if (this.authScreen) {
-            this.authScreen.classList.add("hidden");
-        }
 
-        if (this.app) {
-            this.app.classList.remove("hidden");
-        }
+    showApp() {
+
+        this.authScreen?.classList.add(
+            "hidden"
+        );
+
+        this.app?.classList.remove(
+            "hidden"
+        );
 
         this.updateUserUI();
         this.updateDate();
-        this.updateActiveNavigation();
-        this.updateThemeIcon();
+        this.updateNavigation();
         this.updateDashboard();
         this.renderTasks();
 
         this.startReminderChecker();
     }
 
+
     showSignIn() {
-        if (this.signInTab) {
-            this.signInTab.classList.add("active");
-        }
 
-        if (this.signUpTab) {
-            this.signUpTab.classList.remove("active");
-        }
+        this.signInTab?.classList.add(
+            "active"
+        );
 
-        if (this.signInForm) {
-            this.signInForm.classList.remove("hidden");
-        }
+        this.signUpTab?.classList.remove(
+            "active"
+        );
 
-        if (this.signUpForm) {
-            this.signUpForm.classList.add("hidden");
-        }
+        this.signInForm?.classList.remove(
+            "hidden"
+        );
+
+        this.signUpForm?.classList.add(
+            "hidden"
+        );
     }
+
 
     showSignUp() {
-        if (this.signUpTab) {
-            this.signUpTab.classList.add("active");
-        }
 
-        if (this.signInTab) {
-            this.signInTab.classList.remove("active");
-        }
+        this.signUpTab?.classList.add(
+            "active"
+        );
 
-        if (this.signUpForm) {
-            this.signUpForm.classList.remove("hidden");
-        }
+        this.signInTab?.classList.remove(
+            "active"
+        );
 
-        if (this.signInForm) {
-            this.signInForm.classList.add("hidden");
-        }
+        this.signUpForm?.classList.remove(
+            "hidden"
+        );
+
+        this.signInForm?.classList.add(
+            "hidden"
+        );
     }
 
+
     getUsers() {
+
         try {
+
             return JSON.parse(
-                localStorage.getItem("workflowUsers") || "[]"
+                localStorage.getItem(
+                    "workflowUsers"
+                ) || "[]"
             );
+
         } catch {
+
             return [];
         }
     }
 
+
     saveUsers(users) {
+
         localStorage.setItem(
             "workflowUsers",
             JSON.stringify(users)
         );
     }
 
-    signUp() {
-        const name = this.signUpName?.value.trim();
-        const email = this.signUpEmail?.value.trim().toLowerCase();
-        const password = this.signUpPassword?.value;
 
-        if (!name || !email || !password) {
+    signUp() {
+
+        const name =
+            this.signUpName?.value.trim();
+
+        const email =
+            this.signUpEmail?.value
+                .trim()
+                .toLowerCase();
+
+        const password =
+            this.signUpPassword?.value;
+
+
+        if (
+            !name ||
+            !email ||
+            !password
+        ) {
+
             this.showToast(
                 "Please fill in all fields.",
                 "error"
             );
+
             return;
         }
+
 
         if (!this.isValidEmail(email)) {
+
             this.showToast(
-                "Please enter a valid email address.",
+                "Please enter a valid email.",
                 "error"
             );
+
             return;
         }
 
+
         if (password.length < 6) {
+
             this.showToast(
                 "Password must be at least 6 characters.",
                 "error"
             );
+
             return;
         }
 
-        const users = this.getUsers();
 
-        const existingUser = users.find(
-            (user) => user.email === email
-        );
+        const users =
+            this.getUsers();
 
-        if (existingUser) {
+
+        if (
+            users.some(
+                user =>
+                    user.email === email
+            )
+        ) {
+
             this.showToast(
                 "An account with this email already exists.",
                 "error"
             );
+
             return;
         }
 
-        const newUser = {
+
+        users.push({
             name,
             email,
             password
-        };
+        });
 
-        users.push(newUser);
+
         this.saveUsers(users);
+
 
         this.currentUser = {
             name,
             email
         };
 
+
         localStorage.setItem(
             "workflow_user",
-            JSON.stringify(this.currentUser)
+            JSON.stringify(
+                this.currentUser
+            )
         );
 
+
         this.createFreshUserData();
+
 
         this.showToast(
             "Account created successfully!",
             "success"
         );
 
-        setTimeout(() => {
-            this.showApp();
-        }, 500);
+
+        setTimeout(
+            () => this.showApp(),
+            300
+        );
     }
 
+
     signIn() {
-        const email = this.signInEmail?.value.trim().toLowerCase();
-        const password = this.signInPassword?.value;
+
+        const email =
+            this.signInEmail?.value
+                .trim()
+                .toLowerCase();
+
+        const password =
+            this.signInPassword?.value;
+
 
         if (!email || !password) {
+
             this.showToast(
                 "Please enter your email and password.",
                 "error"
             );
+
             return;
         }
 
-        const users = this.getUsers();
 
-        const user = users.find(
-            (item) =>
-                item.email === email &&
-                item.password === password
-        );
+        const users =
+            this.getUsers();
+
+
+        const user =
+            users.find(
+                item =>
+                    item.email === email &&
+                    item.password === password
+            );
+
 
         if (!user) {
+
             this.showToast(
                 "Invalid email or password.",
                 "error"
             );
+
             return;
         }
+
 
         this.currentUser = {
             name: user.name,
             email: user.email
         };
 
+
         localStorage.setItem(
             "workflow_user",
-            JSON.stringify(this.currentUser)
+            JSON.stringify(
+                this.currentUser
+            )
         );
 
+
         this.loadUserData();
+
 
         this.showToast(
             "Welcome back!",
             "success"
         );
 
-        setTimeout(() => {
-            this.showApp();
-        }, 400);
+
+        setTimeout(
+            () => this.showApp(),
+            300
+        );
     }
 
+
     signOut() {
+
         this.saveUserData();
 
         if (this.reminderInterval) {
-            clearInterval(this.reminderInterval);
+
+            clearInterval(
+                this.reminderInterval
+            );
+
             this.reminderInterval = null;
         }
 
-        localStorage.removeItem("workflow_user");
+
+        localStorage.removeItem(
+            "workflow_user"
+        );
+
 
         this.currentUser = null;
         this.tasks = [];
 
+
         this.showAuth();
+        this.showSignIn();
+
 
         if (this.signInForm) {
             this.signInForm.reset();
@@ -570,118 +899,149 @@ class WorkFlowPro {
         if (this.signUpForm) {
             this.signUpForm.reset();
         }
-
-        this.showSignIn();
-
-        this.showToast(
-            "Signed out successfully.",
-            "success"
-        );
     }
+
 
     isValidEmail(email) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+            .test(email);
     }
 
-    togglePassword(input, button) {
-        if (!input) return;
 
-        if (input.type === "password") {
-            input.type = "text";
-
-            if (button) {
-                button.textContent = "Hide";
-            }
-        } else {
-            input.type = "password";
-
-            if (button) {
-                button.textContent = "Show";
-            }
-        }
-    }
-
-    /* =========================================================
+    /* =====================================================
        USER DATA
-       ========================================================= */
+       ===================================================== */
 
     getUserStorageKey() {
+
         if (!this.currentUser?.email) {
             return null;
         }
 
-        const normalizedEmail =
+        const email =
             this.currentUser.email
-                .trim()
                 .toLowerCase()
-                .replace(/[^a-z0-9]/g, "_");
+                .trim()
+                .replace(
+                    /[^a-z0-9]/g,
+                    "_"
+                );
 
-        return `workflowProData_${normalizedEmail}`;
+        return `workflowProData_${email}`;
     }
 
+
     createFreshUserData() {
+
+        const key =
+            this.getUserStorageKey();
+
+        if (!key) return;
+
         const data = {
             tasks: [],
-            streak: 0,
             achievements: []
         };
 
-        const key = this.getUserStorageKey();
-
-        if (key) {
-            localStorage.setItem(
-                key,
-                JSON.stringify(data)
-            );
-        }
+        localStorage.setItem(
+            key,
+            JSON.stringify(data)
+        );
 
         this.tasks = [];
     }
 
+
     loadUserData() {
-        const key = this.getUserStorageKey();
+
+        const key =
+            this.getUserStorageKey();
 
         if (!key) {
+
             this.tasks = [];
+
             return;
         }
 
-        try {
-            const savedData = JSON.parse(
-                localStorage.getItem(key) || "null"
-            );
 
-            if (!savedData) {
+        try {
+
+            const data =
+                JSON.parse(
+                    localStorage.getItem(
+                        key
+                    ) || "null"
+                );
+
+
+            if (!data) {
+
                 this.createFreshUserData();
+
                 return;
             }
 
-            this.tasks = Array.isArray(savedData.tasks)
-                ? savedData.tasks
-                : [];
 
-            this.tasks = this.tasks.map((task) => ({
-                id: task.id || this.generateId(),
-                title: task.title || "Untitled Task",
-                notes: task.notes || "",
-                dueDate: task.dueDate || "",
-                dueTime: task.dueTime || "",
-                category: task.category || "others",
-                priority: task.priority || "medium",
-                reminder: task.reminder ?? "none",
-                completed: task.completed === true,
-                createdAt:
-                    task.createdAt ||
-                    new Date().toISOString(),
-                completedAt: task.completedAt || null,
-                reminderSent:
-                    task.reminderSent === true
-            }));
+            this.tasks =
+                Array.isArray(data.tasks)
+                    ? data.tasks
+                    : [];
 
-            this.updateDashboard();
+
+            this.tasks =
+                this.tasks.map(
+                    task => ({
+                        id:
+                            task.id ||
+                            this.generateId(),
+
+                        title:
+                            task.title ||
+                            "Untitled Task",
+
+                        notes:
+                            task.notes || "",
+
+                        dueDate:
+                            task.dueDate || "",
+
+                        dueTime:
+                            task.dueTime || "",
+
+                        category:
+                            task.category ||
+                            "personal",
+
+                        priority:
+                            task.priority ||
+                            "medium",
+
+                        reminder:
+                            task.reminder ??
+                            "none",
+
+                        completed:
+                            task.completed === true,
+
+                        createdAt:
+                            task.createdAt ||
+                            new Date().toISOString(),
+
+                        completedAt:
+                            task.completedAt ||
+                            null,
+
+                        reminderSent:
+                            task.reminderSent === true
+                    })
+                );
+
         } catch (error) {
+
             console.error(
-                "Could not load user data:",
+                "Could not load data:",
                 error
             );
 
@@ -689,17 +1049,24 @@ class WorkFlowPro {
         }
     }
 
+
     saveUserData() {
-        const key = this.getUserStorageKey();
+
+        const key =
+            this.getUserStorageKey();
 
         if (!key) return;
 
-        const oldData = this.getUserData();
+
+        const oldData =
+            this.getUserData();
+
 
         const data = {
             ...oldData,
             tasks: this.tasks
         };
+
 
         localStorage.setItem(
             key,
@@ -707,297 +1074,470 @@ class WorkFlowPro {
         );
     }
 
+
     getUserData() {
-        const key = this.getUserStorageKey();
+
+        const key =
+            this.getUserStorageKey();
 
         if (!key) {
+
             return {
                 tasks: [],
-                streak: 0,
                 achievements: []
             };
         }
 
+
         try {
+
             return JSON.parse(
-                localStorage.getItem(key) || "{}"
+                localStorage.getItem(
+                    key
+                ) || "{}"
             );
+
         } catch {
+
             return {
                 tasks: [],
-                streak: 0,
                 achievements: []
             };
         }
     }
 
-    /* =========================================================
+
+    /* =====================================================
        UI
-       ========================================================= */
+       ===================================================== */
 
     updateUserUI() {
+
         if (!this.currentUser) return;
+
 
         if (this.userName) {
             this.userName.textContent =
                 this.currentUser.name;
         }
 
+
         if (this.userEmail) {
             this.userEmail.textContent =
                 this.currentUser.email;
         }
 
+
         if (this.userAvatar) {
-            const firstLetter =
+
+            this.userAvatar.textContent =
                 this.currentUser.name
                     .charAt(0)
                     .toUpperCase();
-
-            this.userAvatar.textContent =
-                firstLetter;
         }
+
 
         if (this.welcomeMessage) {
+
+            const firstName =
+                this.currentUser.name
+                    .split(" ")[0];
+
             this.welcomeMessage.textContent =
-                `Welcome back, ${this.currentUser.name.split(" ")[0]}!`;
+                `Good day, ${firstName}! 👋`;
         }
     }
 
+
     updateDate() {
+
         if (!this.currentDate) return;
 
-        const now = new Date();
-
         this.currentDate.textContent =
-            now.toLocaleDateString("en-IN", {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-                year: "numeric"
-            });
+            new Date().toLocaleDateString(
+                "en-IN",
+                {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric"
+                }
+            );
     }
 
-    updateActiveNavigation() {
-        this.navItems.forEach((item) => {
-            const category =
-                item.dataset.category || "all";
+
+    updateNavigation() {
+
+        this.navItems.forEach(item => {
 
             item.classList.toggle(
                 "active",
-                category === this.currentCategory
+                item.dataset.category ===
+                    this.currentCategory
             );
         });
+
+
+        const titles = {
+            all: "All Tasks",
+            personal: "Personal Tasks",
+            work: "Work Tasks",
+            study: "Study Tasks",
+            health: "Health Tasks",
+            others: "Other Tasks"
+        };
+
+
+        if (this.sectionTitle) {
+
+            this.sectionTitle.textContent =
+                titles[
+                    this.currentCategory
+                ] || "All Tasks";
+        }
+
 
         this.updateCategoryCounts();
     }
 
-    /* =========================================================
+
+    /* =====================================================
        TASK CRUD
-       ========================================================= */
+       ===================================================== */
 
     generateId() {
+
         return (
             Date.now().toString(36) +
             Math.random()
                 .toString(36)
-                .substring(2, 9)
+                .substring(2, 8)
         );
     }
 
+
     openNewTaskModal() {
+
         this.editingTaskId = null;
 
+
         if (this.modalTitle) {
-            this.modalTitle.textContent = "New Task";
+            this.modalTitle.textContent =
+                "Create New Task";
         }
 
-        if (this.taskForm) {
-            this.taskForm.reset();
-        }
+
+        this.taskForm?.reset();
+
 
         if (this.taskId) {
             this.taskId.value = "";
         }
 
-        if (this.taskPriority) {
-            this.taskPriority.value = "medium";
-        }
 
         if (this.taskCategory) {
-            this.taskCategory.value = "personal";
+            this.taskCategory.value =
+                "personal";
         }
 
-        if (this.taskReminder) {
-            this.taskReminder.value = "none";
+
+        if (this.taskPriority) {
+            this.taskPriority.value =
+                "medium";
         }
+
+
+        if (this.taskReminder) {
+            this.taskReminder.value =
+                "none";
+        }
+
 
         this.setMinimumDueDate();
 
         this.openTaskModal();
     }
 
-    openEditTaskModal(taskId) {
-        const task = this.tasks.find(
-            (item) => item.id === taskId
-        );
+
+    openEditTaskModal(id) {
+
+        const task =
+            this.tasks.find(
+                item => item.id === id
+            );
 
         if (!task) return;
 
-        this.editingTaskId = taskId;
+
+        this.editingTaskId = id;
+
 
         if (this.modalTitle) {
-            this.modalTitle.textContent = "Edit Task";
+            this.modalTitle.textContent =
+                "Edit Task";
         }
+
 
         if (this.taskId) {
-            this.taskId.value = task.id;
+            this.taskId.value =
+                task.id;
         }
+
 
         if (this.taskTitle) {
-            this.taskTitle.value = task.title || "";
+            this.taskTitle.value =
+                task.title;
         }
 
+
         if (this.taskNotes) {
-            this.taskNotes.value = task.notes || "";
+            this.taskNotes.value =
+                task.notes || "";
         }
+
 
         if (this.taskDueDate) {
             this.taskDueDate.value =
                 task.dueDate || "";
         }
 
+
         if (this.taskDueTime) {
             this.taskDueTime.value =
                 task.dueTime || "";
         }
+
 
         if (this.taskCategory) {
             this.taskCategory.value =
                 task.category || "personal";
         }
 
+
         if (this.taskPriority) {
             this.taskPriority.value =
                 task.priority || "medium";
         }
 
+
         if (this.taskReminder) {
             this.taskReminder.value =
-                String(task.reminder ?? "none");
+                String(
+                    task.reminder ??
+                    "none"
+                );
         }
+
 
         this.openTaskModal();
     }
 
+
     saveTask() {
+
         const title =
             this.taskTitle?.value.trim();
 
+
         if (!title) {
+
             this.showToast(
                 "Please enter a task title.",
                 "error"
             );
+
+            this.taskTitle?.focus();
+
             return;
         }
 
-        const dueDate =
-            this.taskDueDate?.value || "";
 
-        const dueTime =
-            this.taskDueTime?.value || "";
+        const taskData = {
 
-        const reminder =
-            this.taskReminder?.value || "none";
+            title,
 
-        const category =
-            this.taskCategory?.value || "personal";
+            notes:
+                this.taskNotes?.value.trim() ||
+                "",
 
-        const priority =
-            this.taskPriority?.value || "medium";
+            dueDate:
+                this.taskDueDate?.value ||
+                "",
 
-        const notes =
-            this.taskNotes?.value.trim() || "";
+            dueTime:
+                this.taskDueTime?.value ||
+                "",
+
+            category:
+                this.taskCategory?.value ||
+                "personal",
+
+            priority:
+                this.taskPriority?.value ||
+                "medium",
+
+            reminder:
+                this.taskReminder?.value ||
+                "none"
+        };
+
+
+        /* EDIT */
 
         if (this.editingTaskId) {
-            const index = this.tasks.findIndex(
-                (task) =>
-                    task.id === this.editingTaskId
-            );
+
+            const index =
+                this.tasks.findIndex(
+                    task =>
+                        task.id ===
+                        this.editingTaskId
+                );
+
 
             if (index !== -1) {
-                const oldTask =
-                    this.tasks[index];
 
                 this.tasks[index] = {
-                    ...oldTask,
-                    title,
-                    notes,
-                    dueDate,
-                    dueTime,
-                    category,
-                    priority,
-                    reminder,
+
+                    ...this.tasks[index],
+
+                    ...taskData,
+
+                    // New reminder settings
+                    // should be checked again.
                     reminderSent: false
                 };
+
 
                 this.showToast(
                     "Task updated successfully.",
                     "success"
                 );
             }
-        } else {
+
+        }
+
+
+        /* CREATE */
+
+        else {
+
             const newTask = {
-                id: this.generateId(),
-                title,
-                notes,
-                dueDate,
-                dueTime,
-                category,
-                priority,
-                reminder,
+
+                id:
+                    this.generateId(),
+
+                ...taskData,
+
                 completed: false,
+
                 createdAt:
                     new Date().toISOString(),
+
                 completedAt: null,
+
                 reminderSent: false
             };
 
-            this.tasks.push(newTask);
+
+            this.tasks.push(
+                newTask
+            );
+
 
             this.showToast(
-                "Task created successfully.",
+                "Task created successfully!",
                 "success"
             );
         }
 
+
         this.saveUserData();
+
         this.closeTaskModalWindow();
+
         this.updateDashboard();
+
         this.renderTasks();
     }
 
-    deleteTask(taskId) {
-        const task = this.tasks.find(
-            (item) => item.id === taskId
-        );
+
+    toggleTask(id) {
+
+        const task =
+            this.tasks.find(
+                item => item.id === id
+            );
 
         if (!task) return;
 
+
+        task.completed =
+            !task.completed;
+
+
+        if (task.completed) {
+
+            task.completedAt =
+                new Date().toISOString();
+
+            task.reminderSent = true;
+
+
+            this.showToast(
+                "Task completed!",
+                "success"
+            );
+
+        } else {
+
+            task.completedAt = null;
+
+            task.reminderSent = false;
+
+
+            this.showToast(
+                "Task marked as pending.",
+                "success"
+            );
+        }
+
+
+        this.saveUserData();
+
+        this.updateDashboard();
+
+        this.renderTasks();
+    }
+
+
+    deleteTask(id) {
+
+        const task =
+            this.tasks.find(
+                item => item.id === id
+            );
+
+        if (!task) return;
+
+
         this.openConfirmModal(
-            "Delete Task",
+            "Delete Task?",
             `Are you sure you want to delete "${task.title}"?`,
             () => {
+
                 this.tasks =
                     this.tasks.filter(
-                        (item) =>
-                            item.id !== taskId
+                        item =>
+                            item.id !== id
                     );
 
+
                 this.saveUserData();
+
                 this.updateDashboard();
+
                 this.renderTasks();
+
 
                 this.showToast(
                     "Task deleted.",
@@ -1007,455 +1547,670 @@ class WorkFlowPro {
         );
     }
 
-    toggleTask(taskId) {
-        const task = this.tasks.find(
-            (item) => item.id === taskId
-        );
 
-        if (!task) return;
-
-        task.completed = !task.completed;
-
-        if (task.completed) {
-            task.completedAt =
-                new Date().toISOString();
-
-            // Completed tasks should never trigger reminders.
-            task.reminderSent = true;
-
-            this.showToast(
-                "Task completed!",
-                "success"
-            );
-        } else {
-            task.completedAt = null;
-
-            // If reopened, allow reminder again.
-            task.reminderSent = false;
-
-            this.showToast(
-                "Task marked as pending.",
-                "success"
-            );
-        }
-
-        this.saveUserData();
-        this.updateDashboard();
-        this.renderTasks();
-    }
-
-    /* =========================================================
-       TASK FILTERING
-       ========================================================= */
+    /* =====================================================
+       FILTERING
+       ===================================================== */
 
     getFilteredTasks() {
-        let filtered = [...this.tasks];
+
+        let result =
+            [...this.tasks];
+
 
         /* CATEGORY */
 
         if (
-            this.currentCategory &&
-            this.currentCategory !== "all"
+            this.currentCategory !==
+            "all"
         ) {
-            filtered = filtered.filter(
-                (task) =>
-                    String(task.category)
-                        .toLowerCase() ===
-                    String(this.currentCategory)
-                        .toLowerCase()
-            );
+
+            result =
+                result.filter(
+                    task =>
+                        String(
+                            task.category
+                        ).toLowerCase() ===
+                        this.currentCategory
+                            .toLowerCase()
+                );
         }
+
 
         /* STATUS */
 
-        const status =
-            String(
-                this.statusFilter || "all"
-            ).toLowerCase();
+        if (
+            this.statusFilter ===
+            "pending"
+        ) {
 
-        if (status === "completed") {
-            filtered = filtered.filter(
-                (task) => task.completed === true
-            );
+            result =
+                result.filter(
+                    task =>
+                        task.completed !== true
+                );
         }
 
-        if (status === "pending") {
-            filtered = filtered.filter(
-                (task) => task.completed !== true
-            );
+
+        if (
+            this.statusFilter ===
+            "completed"
+        ) {
+
+            result =
+                result.filter(
+                    task =>
+                        task.completed === true
+                );
         }
+
 
         /* PRIORITY */
 
-        const priority =
-            String(
-                this.priorityFilter || "all"
-            ).toLowerCase();
+        if (
+            this.priorityFilter !==
+            "all"
+        ) {
 
-        if (priority !== "all") {
-            filtered = filtered.filter(
-                (task) =>
-                    String(task.priority)
-                        .toLowerCase() === priority
-            );
+            result =
+                result.filter(
+                    task =>
+                        task.priority ===
+                        this.priorityFilter
+                );
         }
+
 
         /* SEARCH */
 
         if (this.searchQuery) {
-            filtered = filtered.filter(
-                (task) => {
-                    const searchableText = [
-                        task.title,
-                        task.notes,
-                        task.category,
-                        task.priority
-                    ]
-                        .join(" ")
-                        .toLowerCase();
 
-                    return searchableText.includes(
-                        this.searchQuery
-                    );
-                }
-            );
+            result =
+                result.filter(
+                    task => {
+
+                        const text =
+                            [
+                                task.title,
+                                task.notes,
+                                task.category,
+                                task.priority
+                            ]
+                                .join(" ")
+                                .toLowerCase();
+
+
+                        return text.includes(
+                            this.searchQuery
+                        );
+                    }
+                );
         }
+
 
         /* SORT */
 
-        filtered.sort((a, b) => {
-            switch (this.sortBy) {
-                case "oldest":
-                    return (
-                        new Date(a.createdAt) -
-                        new Date(b.createdAt)
-                    );
+        result.sort(
+            (a, b) => {
 
-                case "dueSoon":
-                    return (
-                        this.getTaskTimestamp(a) -
-                        this.getTaskTimestamp(b)
-                    );
+                switch (
+                    this.sortBy
+                ) {
 
-                case "priority": {
-                    const order = {
-                        high: 1,
-                        medium: 2,
-                        low: 3
-                    };
+                    case "created-asc":
 
-                    return (
-                        (order[a.priority] || 4) -
-                        (order[b.priority] || 4)
-                    );
+                        return (
+                            new Date(
+                                a.createdAt
+                            ) -
+                            new Date(
+                                b.createdAt
+                            )
+                        );
+
+
+                    case "due-asc":
+
+                        return (
+                            this.getTaskTimestamp(
+                                a
+                            ) -
+                            this.getTaskTimestamp(
+                                b
+                            )
+                        );
+
+
+                    case "priority": {
+
+                        const order = {
+                            high: 1,
+                            medium: 2,
+                            low: 3
+                        };
+
+                        return (
+                            (order[
+                                a.priority
+                            ] || 4) -
+                            (order[
+                                b.priority
+                            ] || 4)
+                        );
+                    }
+
+
+                    case "title":
+
+                        return a.title
+                            .toLowerCase()
+                            .localeCompare(
+                                b.title
+                                    .toLowerCase()
+                            );
+
+
+                    case "created-desc":
+
+                    default:
+
+                        return (
+                            new Date(
+                                b.createdAt
+                            ) -
+                            new Date(
+                                a.createdAt
+                            )
+                        );
                 }
-
-                case "newest":
-                default:
-                    return (
-                        new Date(b.createdAt) -
-                        new Date(a.createdAt)
-                    );
             }
-        });
+        );
 
-        return filtered;
+
+        return result;
     }
 
-    /* =========================================================
+
+    /* =====================================================
        RENDER TASKS
-       ========================================================= */
+       ===================================================== */
 
     renderTasks() {
+
         if (!this.taskList) return;
+
 
         const tasks =
             this.getFilteredTasks();
 
+
         this.taskList.innerHTML = "";
 
-        if (tasks.length === 0) {
-            if (this.emptyState) {
-                this.emptyState.classList.remove(
-                    "hidden"
-                );
 
-                this.taskList.appendChild(
-                    this.emptyState
-                );
-            }
+        /* EMPTY */
+
+        if (tasks.length === 0) {
+
+            this.showEmptyState();
 
             return;
         }
 
-        if (this.emptyState) {
-            this.emptyState.classList.add(
-                "hidden"
-            );
+
+        this.hideEmptyState();
+
+
+        tasks.forEach(
+            task => {
+
+                const card =
+                    this.createTaskCard(
+                        task
+                    );
+
+                this.taskList.appendChild(
+                    card
+                );
+            }
+        );
+
+
+        if (this.taskSummary) {
+
+            this.taskSummary.textContent =
+                `${tasks.length} ${
+                    tasks.length === 1
+                        ? "task"
+                        : "tasks"
+                }`;
         }
-
-        tasks.forEach((task) => {
-            const card =
-                this.createTaskElement(task);
-
-            this.taskList.appendChild(card);
-        });
     }
 
-    createTaskElement(task) {
+
+    showEmptyState() {
+
+        if (!this.emptyState) return;
+
+
+        this.emptyState.classList.remove(
+            "hidden"
+        );
+
+
+        if (
+            this.statusFilter ===
+            "completed"
+        ) {
+
+            this.emptyTitle.textContent =
+                "No completed tasks";
+
+            this.emptyMessage.textContent =
+                "Complete a task and it will appear here.";
+
+        } else if (
+            this.statusFilter ===
+            "pending"
+        ) {
+
+            this.emptyTitle.textContent =
+                "No pending tasks";
+
+            this.emptyMessage.textContent =
+                "You're all caught up!";
+
+        } else if (
+            this.searchQuery
+        ) {
+
+            this.emptyTitle.textContent =
+                "No tasks found";
+
+            this.emptyMessage.textContent =
+                "Try a different search.";
+
+        } else {
+
+            this.emptyTitle.textContent =
+                "No tasks found";
+
+            this.emptyMessage.textContent =
+                "Create your first task to get started.";
+        }
+    }
+
+
+    hideEmptyState() {
+
+        this.emptyState?.classList.add(
+            "hidden"
+        );
+    }
+
+
+    createTaskCard(task) {
+
         const card =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
+
 
         card.className =
             "task-card";
 
+
         if (task.completed) {
-            card.classList.add("completed");
+            card.classList.add(
+                "completed"
+            );
         }
 
-        const dueDateText =
-            this.formatTaskDueDate(task);
 
-        const priority =
-            String(
-                task.priority || "medium"
-            ).toLowerCase();
+        const overdue =
+            this.isTaskOverdue(
+                task
+            );
 
-        const category =
-            String(
-                task.category || "others"
-            ).toLowerCase();
+
+        const dueText =
+            this.formatDueDate(
+                task
+            );
+
 
         card.innerHTML = `
-            <div class="task-check">
-                <button
-                    class="task-checkbox ${task.completed ? "checked" : ""}"
-                    data-action="toggle"
-                    data-id="${this.escapeAttribute(task.id)}"
-                    aria-label="Toggle task"
-                    type="button"
-                >
-                    ${task.completed ? "✓" : ""}
-                </button>
-            </div>
 
-            <div class="task-content">
-                <div class="task-main">
+            <button
+                class="task-checkbox"
+                type="button"
+                data-action="toggle"
+                data-id="${this.escape(task.id)}"
+                aria-label="Complete task"
+            >
+                ${
+                    task.completed
+                        ? "✓"
+                        : ""
+                }
+            </button>
+
+
+            <div class="task-info">
+
+                <div class="task-title-row">
+
                     <h3 class="task-title">
-                        ${this.escapeHTML(task.title)}
+                        ${this.escape(
+                            task.title
+                        )}
                     </h3>
 
+                </div>
+
+
+                ${
+                    task.notes
+                        ? `
+                            <p class="task-notes">
+                                ${this.escape(
+                                    task.notes
+                                )}
+                            </p>
+                          `
+                        : ""
+                }
+
+
+                <div class="task-meta">
+
+                    <span class="task-tag">
+                        ${this.escape(
+                            this.capitalize(
+                                task.category
+                            )
+                        )}
+                    </span>
+
+
+                    <span class="priority-badge ${
+                        this.escape(
+                            task.priority
+                        )
+                    }">
+                        ${this.escape(
+                            this.capitalize(
+                                task.priority
+                            )
+                        )}
+                    </span>
+
+
                     ${
-                        task.notes
+                        dueText
                             ? `
-                        <p class="task-notes">
-                            ${this.escapeHTML(task.notes)}
-                        </p>
-                    `
+                                <span class="due-badge ${
+                                    overdue
+                                        ? "overdue"
+                                        : ""
+                                }">
+                                    ${this.escape(
+                                        dueText
+                                    )}
+                                </span>
+                              `
                             : ""
                     }
 
-                    <div class="task-meta">
 
-                        ${
-                            dueDateText
-                                ? `
-                            <span class="task-due">
-                                ${this.escapeHTML(dueDateText)}
-                            </span>
-                        `
-                                : ""
-                        }
-
-                        <span class="task-category">
-                            ${this.escapeHTML(
-                                this.capitalize(category)
-                            )}
-                        </span>
-
-                        <span class="task-priority ${priority}">
-                            ${this.escapeHTML(
-                                this.capitalize(priority)
-                            )}
-                        </span>
-
-                        ${
-                            task.reminder &&
-                            task.reminder !== "none"
-                                ? `
-                            <span class="task-reminder">
-                                Reminder: ${this.escapeHTML(
-                                    this.formatReminder(
-                                        task.reminder
-                                    )
-                                )}
-                            </span>
-                        `
-                                : ""
-                        }
-
-                    </div>
-                </div>
-
-                <div class="task-actions">
-
-                    <button
-                        type="button"
-                        class="edit-task"
-                        data-action="edit"
-                        data-id="${this.escapeAttribute(task.id)}"
-                        aria-label="Edit task"
-                    >
-                        Edit
-                    </button>
-
-                    <button
-                        type="button"
-                        class="delete-task"
-                        data-action="delete"
-                        data-id="${this.escapeAttribute(task.id)}"
-                        aria-label="Delete task"
-                    >
-                        Delete
-                    </button>
+                    ${
+                        task.reminder !==
+                        "none"
+                            ? `
+                                <span class="task-tag">
+                                    🔔 ${this.escape(
+                                        this.formatReminder(
+                                            task.reminder
+                                        )
+                                    )}
+                                </span>
+                              `
+                            : ""
+                    }
 
                 </div>
+
+            </div>
+
+
+            <div class="task-actions">
+
+                <button
+                    class="task-action"
+                    type="button"
+                    data-action="edit"
+                    data-id="${this.escape(
+                        task.id
+                    )}"
+                    title="Edit"
+                >
+                    ✎
+                </button>
+
+
+                <button
+                    class="task-action delete"
+                    type="button"
+                    data-action="delete"
+                    data-id="${this.escape(
+                        task.id
+                    )}"
+                    title="Delete"
+                >
+                    🗑
+                </button>
+
             </div>
         `;
 
-        const actionButtons =
-            card.querySelectorAll(
+
+        card
+            .querySelectorAll(
                 "[data-action]"
-            );
+            )
+            .forEach(button => {
 
-        actionButtons.forEach((button) => {
-            button.addEventListener(
-                "click",
-                (e) => {
-                    e.stopPropagation();
+                button.addEventListener(
+                    "click",
+                    event => {
 
-                    const action =
-                        button.dataset.action;
+                        event.stopPropagation();
 
-                    const id =
-                        button.dataset.id;
+                        const action =
+                            button.dataset.action;
 
-                    if (action === "toggle") {
-                        this.toggleTask(id);
+                        const id =
+                            button.dataset.id;
+
+
+                        if (
+                            action ===
+                            "toggle"
+                        ) {
+
+                            this.toggleTask(
+                                id
+                            );
+                        }
+
+
+                        if (
+                            action ===
+                            "edit"
+                        ) {
+
+                            this.openEditTaskModal(
+                                id
+                            );
+                        }
+
+
+                        if (
+                            action ===
+                            "delete"
+                        ) {
+
+                            this.deleteTask(
+                                id
+                            );
+                        }
                     }
+                );
+            });
 
-                    if (action === "edit") {
-                        this.openEditTaskModal(id);
-                    }
-
-                    if (action === "delete") {
-                        this.deleteTask(id);
-                    }
-                }
-            );
-        });
 
         return card;
     }
 
-    /* =========================================================
+
+    /* =====================================================
        DASHBOARD
-       ========================================================= */
+       ===================================================== */
 
     updateDashboard() {
+
         const total =
             this.tasks.length;
 
+
         const completed =
             this.tasks.filter(
-                (task) => task.completed === true
+                task =>
+                    task.completed === true
             ).length;
 
+
         const pending =
-            total - completed;
+            this.tasks.filter(
+                task =>
+                    task.completed !== true
+            ).length;
+
 
         const overdue =
             this.tasks.filter(
-                (task) =>
+                task =>
                     !task.completed &&
                     this.isTaskOverdue(task)
             ).length;
+
 
         if (this.totalTasks) {
             this.totalTasks.textContent =
                 total;
         }
 
+
         if (this.completedTasks) {
             this.completedTasks.textContent =
                 completed;
         }
+
 
         if (this.pendingTasks) {
             this.pendingTasks.textContent =
                 pending;
         }
 
+
         if (this.overdueTasks) {
             this.overdueTasks.textContent =
                 overdue;
         }
 
+
         const percentage =
             total === 0
                 ? 0
                 : Math.round(
-                      (completed / total) *
-                          100
-                  );
+                    (completed / total) *
+                    100
+                );
+
 
         if (this.progressPercent) {
+
             this.progressPercent.textContent =
                 `${percentage}%`;
         }
 
+
         if (this.progressFill) {
+
             this.progressFill.style.width =
                 `${percentage}%`;
         }
 
+
         if (this.progressText) {
+
             this.progressText.textContent =
                 `${completed} of ${total} tasks completed`;
         }
+
 
         this.updateCategoryCounts();
         this.updateStreak();
         this.updateAchievements();
     }
 
+
     updateCategoryCounts() {
-        const categories = {
-            all: this.allCount,
-            personal: this.personalCount,
-            work: this.workCount,
-            study: this.studyCount,
-            health: this.healthCount,
-            others: this.othersCount
+
+        const elements = {
+
+            all:
+                this.allCount,
+
+            personal:
+                this.personalCount,
+
+            work:
+                this.workCount,
+
+            study:
+                this.studyCount,
+
+            health:
+                this.healthCount,
+
+            others:
+                this.othersCount
         };
 
-        Object.keys(categories).forEach(
-            (category) => {
-                const element =
-                    categories[category];
+
+        Object.entries(
+            elements
+        ).forEach(
+            ([category, element]) => {
 
                 if (!element) return;
 
-                if (category === "all") {
+
+                if (
+                    category ===
+                    "all"
+                ) {
+
                     element.textContent =
                         this.tasks.length;
+
                 } else {
+
                     element.textContent =
                         this.tasks.filter(
-                            (task) =>
-                                String(
-                                    task.category
-                                ).toLowerCase() ===
+                            task =>
+                                task.category ===
                                 category
                         ).length;
                 }
@@ -1463,74 +2218,86 @@ class WorkFlowPro {
         );
     }
 
-    /* =========================================================
-       STREAKS
-       ========================================================= */
+
+    /* =====================================================
+       STREAK
+       ===================================================== */
 
     updateStreak() {
-        const completedDates =
+
+        const dates =
             this.tasks
                 .filter(
-                    (task) =>
+                    task =>
                         task.completed &&
                         task.completedAt
                 )
-                .map((task) =>
-                    this.getDateKey(
-                        new Date(
-                            task.completedAt
+                .map(
+                    task =>
+                        this.getDateKey(
+                            new Date(
+                                task.completedAt
+                            )
                         )
-                    )
                 );
 
-        const uniqueDates =
-            [...new Set(completedDates)];
 
-        uniqueDates.sort(
-            (a, b) =>
-                new Date(b) -
-                new Date(a)
-        );
+        const uniqueDates =
+            [...new Set(dates)];
+
 
         let streak = 0;
-        let cursor = new Date();
 
-        const todayKey =
-            this.getDateKey(cursor);
+        let cursor =
+            new Date();
 
-        const yesterday =
-            new Date(cursor);
 
-        yesterday.setDate(
-            yesterday.getDate() - 1
+        const today =
+            this.getDateKey(
+                cursor
+            );
+
+
+        const yesterdayDate =
+            new Date();
+
+        yesterdayDate.setDate(
+            yesterdayDate.getDate() - 1
         );
 
-        const yesterdayKey =
-            this.getDateKey(yesterday);
+
+        const yesterday =
+            this.getDateKey(
+                yesterdayDate
+            );
+
 
         if (
-            !uniqueDates.includes(
-                todayKey
-            ) &&
-            !uniqueDates.includes(
-                yesterdayKey
-            )
+            !uniqueDates.includes(today) &&
+            !uniqueDates.includes(yesterday)
         ) {
+
             streak = 0;
+
         } else {
+
             if (
-                !uniqueDates.includes(
-                    todayKey
-                )
+                !uniqueDates.includes(today)
             ) {
-                cursor = yesterday;
+
+                cursor =
+                    yesterdayDate;
             }
+
 
             while (
                 uniqueDates.includes(
-                    this.getDateKey(cursor)
+                    this.getDateKey(
+                        cursor
+                    )
                 )
             ) {
+
                 streak++;
 
                 cursor.setDate(
@@ -1539,46 +2306,64 @@ class WorkFlowPro {
             }
         }
 
+
         if (this.streakCount) {
+
             this.streakCount.textContent =
                 streak;
         }
 
-        const progress =
-            Math.min(
-                (streak / 7) * 100,
-                100
-            );
 
         if (this.streakProgress) {
+
             this.streakProgress.style.width =
-                `${progress}%`;
+                `${Math.min(
+                    streak * 14.28,
+                    100
+                )}%`;
         }
 
+
         if (this.streakMessage) {
+
             if (streak === 0) {
+
                 this.streakMessage.textContent =
-                    "Start your streak today!";
+                    "Complete a task today to start your streak!";
+
             } else if (streak < 3) {
+
                 this.streakMessage.textContent =
                     "Keep going!";
+
             } else if (streak < 7) {
+
                 this.streakMessage.textContent =
                     "You're on fire!";
+
             } else {
+
                 this.streakMessage.textContent =
                     "Amazing consistency!";
             }
         }
     }
 
+
+    /* =====================================================
+       ACHIEVEMENTS
+       ===================================================== */
+
     updateAchievements() {
+
         const completed =
             this.tasks.filter(
-                (task) => task.completed
+                task => task.completed
             ).length;
 
+
         const achievements = [];
+
 
         if (completed >= 1) {
             achievements.push(
@@ -1586,11 +2371,13 @@ class WorkFlowPro {
             );
         }
 
+
         if (completed >= 5) {
             achievements.push(
                 "five-tasks"
             );
         }
+
 
         if (completed >= 10) {
             achievements.push(
@@ -1598,296 +2385,333 @@ class WorkFlowPro {
             );
         }
 
+
         if (completed >= 25) {
             achievements.push(
                 "twenty-five-tasks"
             );
         }
 
-        const data =
-            this.getUserData();
 
-        data.achievements =
-            achievements;
+        if (this.achievementCount) {
+
+            this.achievementCount.textContent =
+                achievements.length;
+        }
+
 
         const key =
             this.getUserStorageKey();
 
+
         if (key) {
+
+            const data =
+                this.getUserData();
+
+
             localStorage.setItem(
                 key,
                 JSON.stringify({
                     ...data,
-                    tasks: this.tasks
+                    tasks: this.tasks,
+                    achievements
                 })
             );
         }
-
-        if (this.achievementCount) {
-            this.achievementCount.textContent =
-                achievements.length;
-        }
     }
 
-    /* =========================================================
+
+    /* =====================================================
        REMINDERS
-       ========================================================= */
-
-    requestNotificationPermission() {
-        if (
-            typeof Notification ===
-                "undefined"
-        ) {
-            return;
-        }
-
-        if (
-            Notification.permission ===
-            "default"
-        ) {
-            Notification.requestPermission().catch(
-                () => {}
-            );
-        }
-    }
+       ===================================================== */
 
     startReminderChecker() {
+
         if (this.reminderInterval) {
+
             clearInterval(
                 this.reminderInterval
             );
         }
 
+
         this.requestNotificationPermission();
 
-        // Check immediately.
+
         this.checkReminders();
 
-        // Check every 10 seconds.
+
         this.reminderInterval =
-            setInterval(() => {
-                this.checkReminders();
-            }, 10000);
+            setInterval(
+                () => {
+                    this.checkReminders();
+                },
+                10000
+            );
     }
 
+
+    requestNotificationPermission() {
+
+        if (
+            typeof Notification ===
+            "undefined"
+        ) {
+            return;
+        }
+
+
+        if (
+            Notification.permission ===
+            "default"
+        ) {
+
+            Notification
+                .requestPermission()
+                .catch(
+                    () => {}
+                );
+        }
+    }
+
+
     checkReminders() {
-        if (!this.currentUser) return;
+
+        if (!this.currentUser) {
+            return;
+        }
+
 
         let changed = false;
+
 
         const now =
             new Date();
 
-        this.tasks.forEach((task) => {
-            if (task.completed) {
-                return;
+
+        this.tasks.forEach(
+            task => {
+
+                if (
+                    task.completed ||
+                    task.reminder ===
+                    "none" ||
+                    !task.dueDate ||
+                    !task.dueTime ||
+                    task.reminderSent
+                ) {
+                    return;
+                }
+
+
+                const reminderTime =
+                    this.getReminderTime(
+                        task
+                    );
+
+
+                if (!reminderTime) {
+                    return;
+                }
+
+
+                if (
+                    now.getTime() >=
+                    reminderTime.getTime()
+                ) {
+
+                    this.sendReminder(
+                        task
+                    );
+
+
+                    task.reminderSent =
+                        true;
+
+                    changed = true;
+                }
             }
+        );
 
-            if (
-                !task.dueDate ||
-                !task.dueTime
-            ) {
-                return;
-            }
-
-            if (
-                !task.reminder ||
-                task.reminder === "none"
-            ) {
-                return;
-            }
-
-            if (task.reminderSent) {
-                return;
-            }
-
-            const reminderTime =
-                this.getReminderTime(task);
-
-            if (!reminderTime) {
-                return;
-            }
-
-            if (
-                now.getTime() >=
-                reminderTime.getTime()
-            ) {
-                this.sendReminderNotification(
-                    task
-                );
-
-                task.reminderSent = true;
-                changed = true;
-            }
-        });
 
         if (changed) {
             this.saveUserData();
         }
     }
 
-    sendReminderNotification(task) {
-        const message =
-            task.dueTime
-                ? `"${task.title}" is due at ${this.formatTime(task.dueTime)}.`
-                : `"${task.title}" is due soon.`;
 
-        // In-app notification
+    sendReminder(task) {
+
         this.showToast(
             `Reminder: ${task.title}`,
-            "info"
+            "warning"
         );
 
-        // Browser notification
+
         if (
             typeof Notification !==
                 "undefined" &&
             Notification.permission ===
                 "granted"
         ) {
+
             try {
+
                 new Notification(
                     "WorkFlow Pro Reminder",
                     {
-                        body: message,
-                        icon: "./favicon.ico"
+                        body:
+                            `"${task.title}" is due at ${this.formatTime(
+                                task.dueTime
+                            )}.`
                     }
                 );
+
             } catch (error) {
+
                 console.log(
-                    "Browser notification unavailable:",
+                    "Notification unavailable:",
                     error
                 );
             }
         }
     }
 
-    getReminderTime(task) {
-        if (
-            !task.dueDate ||
-            !task.dueTime
-        ) {
-            return null;
-        }
 
-        const dueDateTime =
+    getReminderTime(task) {
+
+        const due =
             new Date(
                 `${task.dueDate}T${task.dueTime}`
             );
 
+
         if (
             Number.isNaN(
-                dueDateTime.getTime()
+                due.getTime()
             )
         ) {
             return null;
         }
+
 
         const minutes =
             this.getReminderMinutes(
                 task.reminder
             );
 
+
         if (minutes === null) {
             return null;
         }
 
+
         return new Date(
-            dueDateTime.getTime() -
-                minutes * 60 * 1000
+            due.getTime() -
+            minutes *
+            60 *
+            1000
         );
     }
 
-    getReminderMinutes(reminder) {
+
+    getReminderMinutes(value) {
+
         if (
-            reminder === null ||
-            reminder === undefined ||
-            reminder === "none"
+            value === null ||
+            value === undefined ||
+            value === "none"
         ) {
             return null;
         }
 
-        const value =
-            String(reminder)
-                .trim()
-                .toLowerCase();
 
         const number =
-            parseFloat(value);
+            parseFloat(
+                String(value)
+            );
+
 
         if (Number.isNaN(number)) {
             return null;
         }
 
-        if (
-            value.includes("day") ||
-            value.includes("24h")
-        ) {
-            return number * 24 * 60;
-        }
-
-        if (
-            value.includes("hour") ||
-            value.includes("hr") ||
-            value.includes("h")
-        ) {
-            return number * 60;
-        }
 
         return number;
     }
 
-    formatReminder(reminder) {
+
+    formatReminder(value) {
+
         const minutes =
             this.getReminderMinutes(
-                reminder
+                value
             );
 
+
         if (minutes === null) {
-            return "No reminder";
+            return "";
         }
 
-        if (minutes < 60) {
-            return `${minutes} min before`;
-        }
 
         if (
-            minutes % 1440 ===
-            0
+            minutes === 1440
         ) {
-            return `${
-                minutes / 1440
-            } day before`;
+
+            return "1 day before";
         }
 
-        return `${minutes / 60} hr before`;
+
+        if (
+            minutes >= 60
+        ) {
+
+            return `${
+                minutes / 60
+            } hour${
+                minutes / 60 === 1
+                    ? ""
+                    : "s"
+            } before`;
+        }
+
+
+        return `${minutes} min before`;
     }
 
-    /* =========================================================
-       DATE / TIME
-       ========================================================= */
+
+    /* =====================================================
+       DATE
+       ===================================================== */
 
     getTaskTimestamp(task) {
+
         if (!task.dueDate) {
             return Infinity;
         }
 
-        const dateString =
+
+        const date =
             task.dueTime
                 ? `${task.dueDate}T${task.dueTime}`
                 : `${task.dueDate}T23:59`;
 
+
         const timestamp =
             new Date(
-                dateString
+                date
             ).getTime();
+
 
         return Number.isNaN(timestamp)
             ? Infinity
             : timestamp;
     }
 
+
     isTaskOverdue(task) {
+
         if (
             task.completed ||
             !task.dueDate
@@ -1895,21 +2719,27 @@ class WorkFlowPro {
             return false;
         }
 
+
         return (
-            this.getTaskTimestamp(task) <
-            Date.now()
+            this.getTaskTimestamp(
+                task
+            ) < Date.now()
         );
     }
 
-    formatTaskDueDate(task) {
+
+    formatDueDate(task) {
+
         if (!task.dueDate) {
             return "";
         }
+
 
         const date =
             new Date(
                 `${task.dueDate}T00:00`
             );
+
 
         if (
             Number.isNaN(
@@ -1919,7 +2749,8 @@ class WorkFlowPro {
             return "";
         }
 
-        const dateText =
+
+        let text =
             date.toLocaleDateString(
                 "en-IN",
                 {
@@ -1929,298 +2760,350 @@ class WorkFlowPro {
                 }
             );
 
+
         if (task.dueTime) {
-            return `${dateText} • ${this.formatTime(
-                task.dueTime
-            )}`;
+
+            text +=
+                ` • ${this.formatTime(
+                    task.dueTime
+                )}`;
         }
 
-        return dateText;
+
+        return text;
     }
 
+
     formatTime(time) {
+
         if (!time) return "";
+
 
         const parts =
             time.split(":");
 
-        if (parts.length < 2) {
-            return time;
-        }
 
         let hours =
-            parseInt(parts[0], 10);
+            parseInt(
+                parts[0],
+                10
+            );
+
 
         const minutes =
-            parts[1];
+            parts[1] || "00";
 
-        if (Number.isNaN(hours)) {
+
+        if (
+            Number.isNaN(hours)
+        ) {
             return time;
         }
+
 
         const period =
             hours >= 12
                 ? "PM"
                 : "AM";
 
+
         hours =
             hours % 12 || 12;
+
 
         return `${hours}:${minutes} ${period}`;
     }
 
+
     getDateKey(date) {
+
         const year =
             date.getFullYear();
+
 
         const month =
             String(
                 date.getMonth() + 1
             ).padStart(2, "0");
 
+
         const day =
             String(
                 date.getDate()
             ).padStart(2, "0");
 
+
         return `${year}-${month}-${day}`;
     }
 
-    setMinimumDueDate() {
-        if (!this.taskDueDate) return;
 
-        const today =
+    setMinimumDueDate() {
+
+        if (!this.taskDueDate) {
+            return;
+        }
+
+
+        this.taskDueDate.min =
             this.getDateKey(
                 new Date()
             );
-
-        this.taskDueDate.min =
-            today;
     }
 
-    /* =========================================================
+
+    /* =====================================================
        MODALS
-       ========================================================= */
+       ===================================================== */
 
     openTaskModal() {
+
         if (!this.taskModal) return;
+
 
         this.taskModal.classList.remove(
             "hidden"
         );
 
+
         document.body.style.overflow =
             "hidden";
 
-        setTimeout(() => {
-            this.taskTitle?.focus();
-        }, 100);
+
+        setTimeout(
+            () => {
+                this.taskTitle?.focus();
+            },
+            100
+        );
     }
 
+
     closeTaskModalWindow() {
-        if (!this.taskModal) return;
+
+        if (!this.taskModal) {
+            return;
+        }
+
 
         this.taskModal.classList.add(
             "hidden"
         );
 
+
         document.body.style.overflow =
             "";
 
+
         this.editingTaskId = null;
     }
+
 
     openConfirmModal(
         title,
         message,
         action
     ) {
-        if (!this.confirmModal) return;
 
-        if (this.confirmTitle) {
-            this.confirmTitle.textContent =
-                title;
+        if (!this.confirmModal) {
+            return;
         }
 
-        if (this.confirmMessage) {
-            this.confirmMessage.textContent =
-                message;
-        }
+
+        this.confirmTitle.textContent =
+            title;
+
+
+        this.confirmMessage.textContent =
+            message;
+
 
         this.confirmAction =
             action;
+
 
         this.confirmModal.classList.remove(
             "hidden"
         );
 
+
         document.body.style.overflow =
             "hidden";
     }
 
+
     closeConfirmModal() {
-        if (!this.confirmModal) return;
+
+        if (!this.confirmModal) {
+            return;
+        }
+
 
         this.confirmModal.classList.add(
             "hidden"
         );
 
+
         this.confirmAction = null;
+
 
         document.body.style.overflow =
             "";
     }
 
-    /* =========================================================
-       MOBILE SIDEBAR
-       ========================================================= */
+
+    /* =====================================================
+       MOBILE
+       ===================================================== */
 
     openMobileSidebar() {
-        if (!this.sidebar) return;
 
-        this.sidebar.classList.add(
+        this.sidebar?.classList.add(
             "open"
         );
     }
+
 
     closeMobileSidebar() {
-        if (!this.sidebar) return;
 
-        this.sidebar.classList.remove(
+        this.sidebar?.classList.remove(
             "open"
         );
     }
 
-    /* =========================================================
-       THEME
-       ========================================================= */
+
+    /* =====================================================
+       DARK MODE
+       ===================================================== */
 
     toggleTheme() {
-        const current =
+
+        /*
+         IMPORTANT:
+         Your CSS uses body.dark
+         NOT body.dark-mode.
+        */
+
+        document.body.classList.toggle(
+            "dark"
+        );
+
+
+        const isDark =
             document.body.classList.contains(
-                "dark-mode"
-            );
-
-        if (current) {
-            document.body.classList.remove(
-                "dark-mode"
-            );
-
-            localStorage.setItem(
-                "workflow_theme",
-                "light"
-            );
-        } else {
-            document.body.classList.add(
-                "dark-mode"
-            );
-
-            localStorage.setItem(
-                "workflow_theme",
                 "dark"
             );
-        }
+
+
+        localStorage.setItem(
+            "workflow_theme",
+            isDark
+                ? "dark"
+                : "light"
+        );
+
 
         this.updateThemeIcon();
     }
 
+
     loadTheme() {
+
         const saved =
             localStorage.getItem(
                 "workflow_theme"
             );
 
+
         if (saved === "dark") {
+
             document.body.classList.add(
-                "dark-mode"
+                "dark"
             );
+
         } else {
+
             document.body.classList.remove(
-                "dark-mode"
+                "dark"
             );
         }
+
 
         this.updateThemeIcon();
     }
 
-    updateThemeIcon() {
-        if (!this.themeIcon) return;
 
-        const dark =
+    updateThemeIcon() {
+
+        if (!this.themeIcon) {
+            return;
+        }
+
+
+        const isDark =
             document.body.classList.contains(
-                "dark-mode"
+                "dark"
             );
 
+
         this.themeIcon.textContent =
-            dark ? "☀" : "☾";
+            isDark
+                ? "☀️"
+                : "🌙";
     }
 
-    /* =========================================================
+
+    /* =====================================================
        TOAST
-       ========================================================= */
+       ===================================================== */
 
     showToast(
         message,
         type = "info"
     ) {
+
         if (!this.toastContainer) {
             return;
         }
 
+
         const toast =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
+
 
         toast.className =
-            `toast toast-${type}`;
+            `toast ${type}`;
 
-        toast.innerHTML = `
-            <span class="toast-message">
-                ${this.escapeHTML(message)}
-            </span>
 
-            <button
-                type="button"
-                class="toast-close"
-                aria-label="Close"
-            >
-                ×
-            </button>
-        `;
+        toast.textContent =
+            message;
+
 
         this.toastContainer.appendChild(
             toast
         );
 
-        const closeButton =
-            toast.querySelector(
-                ".toast-close"
-            );
 
-        if (closeButton) {
-            closeButton.addEventListener(
-                "click",
-                () => {
-                    toast.remove();
-                }
-            );
-        }
+        setTimeout(
+            () => {
 
-        setTimeout(() => {
-            if (
-                toast &&
-                toast.parentNode
-            ) {
                 toast.remove();
-            }
-        }, 4500);
+
+            },
+            4000
+        );
     }
 
-    /* =========================================================
+
+    /* =====================================================
        HELPERS
-       ========================================================= */
+       ===================================================== */
 
     capitalize(value) {
+
         if (!value) return "";
+
 
         return (
             String(value)
@@ -2231,32 +3114,46 @@ class WorkFlowPro {
         );
     }
 
-    escapeHTML(value) {
-        return String(value ?? "")
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
 
-    escapeAttribute(value) {
-        return this.escapeHTML(value);
+    escape(value) {
+
+        return String(
+            value ?? ""
+        )
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            )
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+            .replace(
+                /'/g,
+                "&#039;"
+            );
     }
 }
 
 
 /* =========================================================
-   START APPLICATION
+   START
    ========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
     () => {
+
         window.workFlowPro =
             new WorkFlowPro();
 
-        // Load saved theme after DOM is ready.
-        window.workFlowPro.loadTheme();
     }
 );
