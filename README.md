@@ -19,7 +19,6 @@ A professional and responsive **Task Management Web App** to organize tasks, man
 * 📊 Productivity dashboard & progress tracking
 * 🌗 Dark / Light mode
 * 💾 LocalStorage data persistence
-* 📤 Export & 📥 Import JSON backups
 * 🔐 Local authentication
 * 📱 Fully responsive design
 
